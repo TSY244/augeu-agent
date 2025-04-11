@@ -46,22 +46,38 @@ func Infof(format string, v ...interface{}) {
 	log.Info().Msgf(format, v...)
 }
 
+func Infoln(v ...interface{}) {
+	log.Info().Msgf("%v", v...)
+}
+
 func Debugf(format string, v ...interface{}) {
 	log.Debug().Msgf(format, v...)
+}
+
+func Debugln(v ...interface{}) {
+	log.Debug().Msgf("%v", v...)
 }
 
 func Warnf(format string, v ...interface{}) {
 	log.Warn().Msgf(format, v...)
 }
 
+func Warnln(v ...interface{}) {
+	log.Warn().Msgf("%v", v...)
+}
+
 func Errorf(format string, v ...interface{}) {
 	log.Error().Msgf(format, v...)
+}
+
+func Errorln(v ...interface{}) {
+	log.Error().Msgf("%v", v...)
 }
 
 func Panicf(format string, v ...interface{}) {
 	log.Panic().Msgf(format, v...)
 }
 
-func Infoln(v ...interface{}) {
-	log.Info().Msgf("%v", v...)
+func Panicln(v ...interface{}) {
+	log.Panic().Msgf("%v", v...)
 }
