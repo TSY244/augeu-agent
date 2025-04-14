@@ -8,6 +8,7 @@ require (
 	github.com/StackExchange/wmi v1.2.1
 	github.com/fatih/color v1.18.0
 	github.com/go-openapi/strfmt v0.23.0
+	github.com/rs/zerolog v1.34.0
 	golang.org/x/sys v0.32.0
 )
 
