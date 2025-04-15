@@ -14,6 +14,7 @@ require (
 
 require (
 	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2 // indirect
+	github.com/bilibili/gengine v1.5.7 // indirect
 	github.com/go-ole/go-ole v1.2.5 // indirect
 	github.com/go-openapi/errors v0.22.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
