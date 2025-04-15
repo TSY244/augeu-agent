@@ -1,11 +1,12 @@
 package windowsLog
 
 import (
-	"augeu-agent/pkg/logger"
+	_const "augeu-agent/pkg/util/const"
 	"augeu-agent/pkg/windowsWmi"
 	"errors"
 	"fmt"
 	"github.com/0xrawsec/golang-evtx/evtx"
+	"github.com/0xrawsec/golang-utils/log"
 	"os"
 )
 
@@ -58,15 +59,15 @@ func RegisterFunctionMap(eventName EventNameType, function ExternalFunctionForMa
 
 func GetEventsForLoginEvent(evtxMap chan *evtx.GoEvtxMap) []EventUnit {
 	events := make([]EventUnit, 0)
-	logger.Infoln("len(evtxMap): ", len(evtxMap))
+	log.Info("len(evtxMap): ", len(evtxMap))
 	for event := range evtxMap {
 		if _, ok := LoginEvent[event.EventID()]; !ok {
 			continue
 		}
-		eventInfoln := getBaseInfoln(event)
-		addLoginEventInfolnForEvent(event, &eventInfoln)
-		events = append(events, eventInfoln)
-		logger.Infoln("eventInfoln: ", eventInfoln, "len events: ", len(events), "event: ", event.EventID(), "eventInfoln: ", eventInfoln)
+		eventInfo := getBaseInfo(event)
+		addLoginEventInfoForEvent(event, &eventInfo)
+		events = append(events, eventInfo)
+		log.Info("eventInfo: ", eventInfo, "len events: ", len(events), "event: ", event.EventID(), "eventInfo: ", eventInfo)
 	}
 	return events
 }
@@ -77,9 +78,9 @@ func GetEventsForRdpEvent(evtxMap chan *evtx.GoEvtxMap) []EventUnit {
 		if _, ok := RdpEvent[event.EventID()]; !ok {
 			continue
 		}
-		eventInfoln := getBaseInfoln(event)
-		addRdpEventInfolnForEvent(event, &eventInfoln)
-		events = append(events, eventInfoln)
+		eventInfo := getBaseInfo(event)
+		addRdpEventInfoForEvent(event, &eventInfo)
+		events = append(events, eventInfo)
 	}
 	return events
 }
@@ -90,9 +91,9 @@ func GetEventsForServiceEvent(evtxMap chan *evtx.GoEvtxMap) []EventUnit {
 		if _, ok := ServiceEvent[event.EventID()]; !ok {
 			continue
 		}
-		eventInfoln := getBaseInfoln(event)
-		addServiceEventInfolnForEvent(event, &eventInfoln)
-		events = append(events, eventInfoln)
+		eventInfo := getBaseInfo(event)
+		addServiceEventInfoForEvent(event, &eventInfo)
+		events = append(events, eventInfo)
 	}
 	return events
 }
@@ -103,9 +104,9 @@ func GetEventsForCreateProcessEvent(evtxMap chan *evtx.GoEvtxMap) []EventUnit {
 		if _, ok := CreateProcessEvent[event.EventID()]; !ok {
 			continue
 		}
-		eventInfoln := getBaseInfoln(event)
-		//addCreateProcessEventInfolnForEvent(event, &eventInfoln)
-		events = append(events, eventInfoln)
+		eventInfo := getBaseInfo(event)
+		//addCreateProcessEventInfoForEvent(event, &eventInfo)
+		events = append(events, eventInfo)
 	}
 	return events
 }
@@ -116,9 +117,9 @@ func GetEventsForPowershellEvent(evtxMap chan *evtx.GoEvtxMap) []EventUnit {
 		if _, ok := PowershellEvent[event.EventID()]; !ok {
 			continue
 		}
-		eventInfoln := getBaseInfoln(event)
-		//addPowershellEventInfolnForEvent(event, &eventInfoln)
-		events = append(events, eventInfoln)
+		eventInfo := getBaseInfo(event)
+		//addPowershellEventInfoForEvent(event, &eventInfo)
+		events = append(events, eventInfo)
 	}
 	return events
 }
@@ -129,9 +130,9 @@ func GetEventsForReadLsassEvent(evtxMap chan *evtx.GoEvtxMap) []EventUnit {
 		if _, ok := ReadLsassEvent[event.EventID()]; !ok {
 			continue
 		}
-		eventInfoln := getBaseInfoln(event)
-		//addReadLsassEventInfolnForEvent(event, &eventInfoln)
-		events = append(events, eventInfoln)
+		eventInfo := getBaseInfo(event)
+		//addReadLsassEventInfoForEvent(event, &eventInfo)
+		events = append(events, eventInfo)
 	}
 	return events
 }
@@ -142,9 +143,9 @@ func GetEventsForSystemEvent(evtxMap chan *evtx.GoEvtxMap) []EventUnit {
 		if _, ok := SystemEvent[event.EventID()]; !ok {
 			continue
 		}
-		eventInfoln := getBaseInfoln(event)
-		//addSystemEventInfolnForEvent(event, &eventInfoln)
-		events = append(events, eventInfoln)
+		eventInfo := getBaseInfo(event)
+		//addSystemEventInfoForEvent(event, &eventInfo)
+		events = append(events, eventInfo)
 	}
 	return events
 }
@@ -155,9 +156,9 @@ func GetEventsForUserEvent(evtxMap chan *evtx.GoEvtxMap) []EventUnit {
 		if _, ok := UserEvent[event.EventID()]; !ok {
 			continue
 		}
-		eventInfoln := getBaseInfoln(event)
-		addUserEventInfolnForEvent(event, &eventInfoln)
-		events = append(events, eventInfoln)
+		eventInfo := getBaseInfo(event)
+		addUserEventInfoForEvent(event, &eventInfo)
+		events = append(events, eventInfo)
 	}
 	return events
 }
@@ -172,7 +173,7 @@ func Wrapper(path string) *evtx.GoEvtxPath {
 func GetString(evtxMap *evtx.GoEvtxMap, path *evtx.GoEvtxPath) string {
 	value, err := evtxMap.GetString(path)
 	if err != nil {
-		logger.Errorln("GetString -> get string error: ", err)
+		log.Error("GetString -> get string error: ", err)
 		return ""
 	}
 	return value
@@ -209,15 +210,15 @@ func runBase(eventName EventNameType, mapChanFunctions []ExternalFunctionForMapC
 	return nil
 }
 
-func getBaseInfoln(event *evtx.GoEvtxMap) EventUnit {
+func getBaseInfo(event *evtx.GoEvtxMap) EventUnit {
 	// time : year-month-day hour:minute:second
 	machineUUid, err := windowsWmi.QueryUuid()
 	if err != nil {
-		fmt.Println("getBaseInfoln -> get windows guid error: ", err)
+		fmt.Println("getBaseInfo -> get windows guid error: ", err)
 	}
 	return EventUnit{
 		EventIdKey:     event.EventID(),
-		EventTimeKey:   event.TimeCreated().Format("2006-01-02 15:04:05"),
+		EventTimeKey:   event.TimeCreated().Format(_const.TimeFormat),
 		MachineUUIDKey: machineUUid,
 	}
 }
@@ -252,12 +253,12 @@ func getLoginType(typeId string) string {
 	case "11":
 		return "CachedInteractive（缓存交互登录）"
 	default:
-		logger.Errorln("getLoginType -> login type not found: ", typeId)
+		log.Error("getLoginType -> login type not found: ", typeId)
 		return "Unknown"
 	}
 }
 
-func addLoginEventInfolnForEvent(evtxMap *evtx.GoEvtxMap, eventUnit *EventUnit) {
+func addLoginEventInfoForEvent(evtxMap *evtx.GoEvtxMap, eventUnit *EventUnit) {
 	(*eventUnit)[LoginTypeKey] = getLoginType(GetString(evtxMap, Wrapper(logonTypePath)))
 	(*eventUnit)[UsernameKey] = GetString(evtxMap, Wrapper(usernamePath))
 	(*eventUnit)[SourceIpKey] = GetString(evtxMap, Wrapper(ipAddressPath))
@@ -276,7 +277,7 @@ func rdpEvent(evtxMap chan *evtx.GoEvtxMap) error {
 	return nil
 }
 
-func addRdpEventInfolnForEvent(evtxMap *evtx.GoEvtxMap, eventUnit *EventUnit) {
+func addRdpEventInfoForEvent(evtxMap *evtx.GoEvtxMap, eventUnit *EventUnit) {
 	(*eventUnit)[AccountNameKey] = GetString(evtxMap, Wrapper(AccountNamePath))
 	(*eventUnit)[AccountDomainKey] = GetString(evtxMap, Wrapper(AccountDomainPath))
 	(*eventUnit)[ClientAddressKey] = GetString(evtxMap, Wrapper(ClientAddressPath))
@@ -292,7 +293,7 @@ func serviceEvent(evtxMap chan *evtx.GoEvtxMap) error {
 	return nil
 }
 
-func addServiceEventInfolnForEvent(evtxMap *evtx.GoEvtxMap, eventUnit *EventUnit) {
+func addServiceEventInfoForEvent(evtxMap *evtx.GoEvtxMap, eventUnit *EventUnit) {
 	(*eventUnit)[ServiceEventServiceNamePathKey] = GetString(evtxMap, Wrapper(ServiceEventServiceNamePath))
 	(*eventUnit)[ServiceEventImagePathKey] = GetString(evtxMap, Wrapper(ServiceEventImagePath))
 	(*eventUnit)[ServiceEventServiceTypePathKey] = GetString(evtxMap, Wrapper(ServiceEventServiceTypePath))
@@ -310,7 +311,7 @@ func createProcessEvent(evtxMap chan *evtx.GoEvtxMap) error {
 	return nil
 }
 
-// func addCreateProcessEventInfolnForEvent(evtxMap *evtx.GoEvtxMap, eventUnit *EventUnit) {
+// func addCreateProcessEventInfoForEvent(evtxMap *evtx.GoEvtxMap, eventUnit *EventUnit) {
 // 	(*eventUnit)[CreateProcessEventProcessNamePathKey] = GetString(evtxMap, Wrapper(CreateProcessEventProcessNamePath))
 //}
 
@@ -323,7 +324,7 @@ func powershellEvent(evtxMap chan *evtx.GoEvtxMap) error {
 	return nil
 }
 
-func addPowershellEventInfolnForEvent(evtxMap *evtx.GoEvtxMap, eventUnit *EventUnit) {
+func addPowershellEventInfoForEvent(evtxMap *evtx.GoEvtxMap, eventUnit *EventUnit) {
 	//(*eventUnit)[PowershellEventCommandLinePathKey] = GetString(evtxMap, Wrapper(PowershellEventCommandLinePath))
 }
 
@@ -335,7 +336,7 @@ func readLsassEvent(evtxMap chan *evtx.GoEvtxMap) error {
 	fmt.Println(events)
 	return nil
 }
-func addReadLsassEventInfolnForEvent(evtxMap *evtx.GoEvtxMap, eventUnit *EventUnit) {
+func addReadLsassEventInfoForEvent(evtxMap *evtx.GoEvtxMap, eventUnit *EventUnit) {
 	//(*eventUnit)[ReadLsassEventProcessNamePathKey] = GetString(evtxMap, Wrapper(ReadLsassEventProcessNamePath))
 }
 
@@ -348,7 +349,7 @@ func systemEvent(evtxMap chan *evtx.GoEvtxMap) error {
 	return nil
 }
 
-func addSystemEventInfolnForEvent(evtxMap *evtx.GoEvtxMap, eventUnit *EventUnit) {
+func addSystemEventInfoForEvent(evtxMap *evtx.GoEvtxMap, eventUnit *EventUnit) {
 
 }
 
@@ -361,7 +362,7 @@ func userEvent(evtxMap chan *evtx.GoEvtxMap) error {
 	return nil
 }
 
-func addUserEventInfolnForEvent(evtxMap *evtx.GoEvtxMap, eventUnit *EventUnit) {
+func addUserEventInfoForEvent(evtxMap *evtx.GoEvtxMap, eventUnit *EventUnit) {
 	(*eventUnit)[UserEventTargetUserNameKey] = GetString(evtxMap, Wrapper(UserEventTargetUserNamePath))
 	(*eventUnit)[UserEventTargetDomainNameKey] = GetString(evtxMap, Wrapper(UserEventTargetDomainNamePath))
 	(*eventUnit)[UserEventTargetSidKey] = GetString(evtxMap, Wrapper(UserEventTargetSidPath))
