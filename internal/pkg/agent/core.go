@@ -26,9 +26,11 @@ func NewAgent(c *Config) *Agent {
 		Conf: c,
 		//Eng:  engine.NewEngine(),
 		ApiOuter: map[string]interface{}{
-			"println":  fmt.Println,
-			"reg":      NewReg(),
-			"strUtils": engUtils.NewStrUtils(),
+			"println":      fmt.Println,
+			"reg":          NewReg(),
+			"strUtils":     engUtils.NewStrUtils(),
+			"fileSysUtils": engUtils.NewFileSys(),
+			"printer":      engUtils.NewPrinter(),
 		},
 	}
 }
