@@ -3,10 +3,12 @@ package agent
 import (
 	"augeu-agent/internal/pkg/engine/engUtils"
 	"augeu-agent/internal/pkg/param"
+	"augeu-agent/pkg/color"
 	"augeu-agent/pkg/logger"
 	"fmt"
 	engine2 "github.com/bilibili/gengine/engine"
 	"os"
+	"time"
 )
 
 type Agent struct {
@@ -70,11 +72,31 @@ func (a *Agent) baseRun() error {
 	if err != nil {
 		return err
 	}
+	startTime := time.Now().UnixNano()
 	err, mapData := engPool.ExecuteConcurrent(nil)
 	if err != nil {
 		return err
 	}
-	logger.Infof("返回结果: %v", mapData)
+	endTime := time.Now().UnixNano()
+	var falseRet []string
+	info := fmt.Sprintf("-----------------------------------------------扫描完成 扫描耗时: %d ms-----------------------------------------------", (endTime-startTime)/1000000)
+	color.Blue("%s\n", info)
+	logger.Infof("返回结果:")
+	for k, v := range mapData {
+		logger.Infof("rule name: %s -> ret: %v", k, v)
+		ret, ok := v.(bool)
+		if ok && !ret {
+			falseRet = append(falseRet, k)
+		}
+	}
+
+	//logger.Infof("需要注意的rule:")
+	color.Magenta("%s\n", "需要注意的rule:")
+	for _, v := range falseRet {
+		//logger.Warnf("rule name: %s", v)
+		color.White("%s", "rule name:")
+		color.HRed(" %s\n", v)
+	}
 	return nil
 }
 

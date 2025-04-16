@@ -82,3 +82,16 @@ func (s *StrUtils) IsStrInstrSplice(str string, strSlice []string) bool {
 	}
 	return false
 }
+
+// AddPrefix 给字符串添加前缀
+func (s *StrUtils) AddPrefix(str string, prefix string) string {
+	return prefix + str
+}
+
+// AddPrefixs 给字符串切片添加前缀
+func (s *StrUtils) AddPrefixs(strSlice []string, prefix string) []string {
+	for i, v := range strSlice {
+		strSlice[i] = prefix + v
+	}
+	return strSlice
+}
