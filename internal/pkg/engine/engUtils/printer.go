@@ -1,11 +1,15 @@
 package engUtils
 
-import "augeu-agent/pkg/color"
+import (
+	"augeu-agent/pkg/color"
+)
 
 var (
-	InfoPrint    = "In task [INFO]: %s\n"
-	WarnPrint    = "In task [WARN]: %s\n"
-	DebugPrinter = "In task [DEBUG]: %s\n"
+	basePrint    = "[task log] "
+	InfoPrint    = basePrint + "[INFO]: %s\n"
+	WarnPrint    = basePrint + "[WARN]: %s\n"
+	DebugPrinter = basePrint + "[DEBUG]: %s\n"
+	ErrorPrinter = basePrint + "[ERROR]: %s\n"
 )
 
 type Printer struct {
@@ -16,13 +20,49 @@ func NewPrinter() *Printer {
 }
 
 func (r *Printer) Info(value interface{}) {
-	color.InfoPrinter.Printf(InfoPrint, value)
+	color.White(InfoPrint, value)
 }
 
 func (r *Printer) Warn(value interface{}) {
-	color.WarnPrinter.Printf(WarnPrint, value)
+	color.Yellow(WarnPrint, value)
 }
 
 func (r *Printer) Debug(value interface{}) {
-	color.DebugPrinter.Printf(DebugPrinter, value)
+	color.Magenta(DebugPrinter, value)
+}
+
+func (r *Printer) Error(value interface{}) {
+	color.Red(DebugPrinter, value)
+}
+
+func (r *Printer) Remind(value interface{}) {
+	color.Green(DebugPrinter, value)
+}
+
+// PrintStrSlice 打印切片
+//
+// 参数：
+//
+//	slice：切片
+//	mode：打印模式，可选值为"info"、"warn"、"debug"、"error"
+func (r *Printer) PrintStrSlice(slice []string, mode string) {
+	var f func(format string, a ...interface{})
+	var format string
+	switch mode {
+	case "info":
+		f = color.White
+		format = InfoPrint
+	case "warn":
+		f = color.Yellow
+		format = WarnPrint
+	case "debug":
+		f = color.Magenta
+		format = DebugPrinter
+	case "error":
+		f = color.Red
+		format = ErrorPrinter
+	}
+	for _, v := range slice {
+		f(format, v)
+	}
 }

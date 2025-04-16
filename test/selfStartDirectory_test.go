@@ -7,10 +7,10 @@ import (
 
 const (
 	selfStartDirectoryRule = `
-rule "selfStartDirectoryRule" "basic"  salience 0
+rule "selfStartDirectoryRule6" "basic"  salience 0
 begin
 	ret=fileSysUtils.LsFile("C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Startup")
-	printer.Warn(ret)
+	printer.PrintStrSlice(ret,"info")
 end
 `
 )

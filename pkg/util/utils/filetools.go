@@ -12,7 +12,7 @@ const (
 )
 
 func ReadFile(path string) ([]byte, error) {
-	// check file is exist
+	// engUtils file is exist
 	_, err := os.Stat(path)
 	if err != nil {
 		return nil, err
