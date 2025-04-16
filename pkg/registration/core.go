@@ -69,6 +69,7 @@ func GetSubKeys(key registry.Key, path string) ([]string, error) {
 	return names, nil
 }
 
+// GetDebuggerValue 获取一个path 下的debugger 的value
 func GetDebuggerValue(fileName string) (string, error) {
 	path := IFEOPath + "\\" + fileName
 	reg, err := registry.OpenKey(registry.LOCAL_MACHINE, path, registry.QUERY_VALUE)

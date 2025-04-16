@@ -1,12 +1,13 @@
-package main
+package agent
 
-import (
-	"augeu-agent/internal/pkg/agent"
-	"augeu-agent/internal/pkg/param"
-)
+import "testing"
 
-const (
-	rule = `
+func TestReg(t *testing.T) {
+	agentConf := Config{
+		Mode: BasicMode,
+	}
+	agent := NewAgent(&agentConf)
+	agent.Rule = `
 rule "name testGetPathSubKeys" "i can"  salience 0
 begin
 	names = reg.GetPathSubKeys("HKEY_LOCAL_MACHINE\HARDWARE")
@@ -17,19 +18,8 @@ rule "name testGetRegPathValueNames" "i can"  salience 0
 begin
 	names = reg.GetRegPathValueNames("HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Tpm")
 	println(names)
-	println("asdf"+ @name) 
+	println("asdf"+ @name)
 end
 `
-)
-
-func main() {
-	param.Init()
-	c := agent.Config{
-		ConfigPath: param.BaseConfig.ConfigPath,
-		Mode:       param.BaseConfig.Mode,
-	}
-	augeu := agent.NewAgent(&c)
-
-	augeu.SetRule(rule)
-	augeu.Run()
+	agent.Run()
 }
