@@ -53,7 +53,28 @@ func GetHashWithFilePath(filePath string) (string, error) {
 	return hex.EncodeToString(hash.Sum(nil)), nil
 }
 
+func GetHashsWithFilePaths(filePaths []string) ([]string, error) {
+	var hashs []string
+	for _, filePath := range filePaths {
+		file, err := os.Open(filePath)
+		if err != nil {
+			return nil, err
+		}
+		hash := md5.New()
+		_, err = io.Copy(hash, file)
+		if err != nil {
+			return nil, err
+		}
+		hashs = append(hashs, hex.EncodeToString(hash.Sum(nil)))
+		file.Close()
+	}
+	return hashs, nil
+}
+
 // FromLinkToPath 获取链接指向的路径
+//
+// 注意：
+//  1. windows 不工作
 func FromLinkToPath(linkPath string) (string, error) {
 	file, err := os.Open(linkPath)
 	if err != nil {

@@ -1,6 +1,7 @@
 package agent
 
 import (
+	"augeu-agent/internal/pkg/engine/engUtils"
 	"augeu-agent/internal/pkg/param"
 	"augeu-agent/pkg/logger"
 	"fmt"
@@ -25,8 +26,9 @@ func NewAgent(c *Config) *Agent {
 		Conf: c,
 		//Eng:  engine.NewEngine(),
 		ApiOuter: map[string]interface{}{
-			"println": fmt.Println,
-			"reg":     NewReg(),
+			"println":  fmt.Println,
+			"reg":      NewReg(),
+			"strUtils": engUtils.NewStrUtils(),
 		},
 	}
 }
