@@ -23,28 +23,44 @@ func NewPrinter() *Printer {
 	return &Printer{}
 }
 
-func (r *Printer) Info(value interface{}) {
+func (r *Printer) Info(value interface{}, addInfo ...string) {
+	if len(addInfo) > 0 {
+		value = "[" + strings.Join(addInfo, ",") + "] " + convert.Any2Str(value)
+	}
 	raw := convert.Any2Str(value)
 	color.White(InfoPrint, raw)
 }
 
-func (r *Printer) Warn(value interface{}) {
+func (r *Printer) Warn(value interface{}, addInfo ...string) {
+	if len(addInfo) > 0 {
+		value = "[" + strings.Join(addInfo, ",") + "] " + convert.Any2Str(value)
+	}
 	raw := convert.Any2Str(value)
 	color.Yellow(WarnPrint, raw)
 }
 
-func (r *Printer) Debug(value interface{}) {
+func (r *Printer) Debug(value interface{}, addInfo ...string) {
+	if len(addInfo) > 0 {
+		value = "[" + strings.Join(addInfo, ",") + "] " + convert.Any2Str(value)
+	}
 	raw := convert.Any2Str(value)
 	color.Magenta(DebugPrinter, raw)
 }
 
-func (r *Printer) Error(value interface{}) {
+func (r *Printer) Error(value interface{}, addInfo ...string) {
+	if len(addInfo) > 0 {
+		value = "[" + strings.Join(addInfo, ",") + "] " + convert.Any2Str(value)
+	}
 	raw := convert.Any2Str(value)
 	color.Red(ErrorPrinter, raw)
 }
 
-func (r *Printer) Remind(value interface{}) {
-	color.Green(RemindPrinter, value)
+func (r *Printer) Remind(value interface{}, addInfo ...string) {
+	if len(addInfo) > 0 {
+		value = "[" + strings.Join(addInfo, ",") + "] " + convert.Any2Str(value)
+	}
+	raw := convert.Any2Str(value)
+	color.Green(RemindPrinter, raw)
 }
 
 // PrintStrSlice 打印切片
