@@ -26,6 +26,7 @@ begin
 	path="HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run"
 	names=reg.GetRegPathValueNames(path)
 	size=base.SizeForStr(names)
+	flag=true
 	forRange i:=names{
 		ret=reg.GetRegPathValue(path,names[i])
 		printer.Info(ret)		
@@ -34,8 +35,9 @@ begin
 		result=weibu.GetFileReport(hash,agent.GetWeiBuConf(),"")
 		seg=base.GeneFileSegmentation(100,"-")
 	    //printer.Info(result+seg)	
+		flag=flag&&check.CheckHash(hash,agent.GetWeiBuConf(),"",0.5)
 		fileSysUtils.IntoFile(@name+"_"+hash+".txt",result)
 	}
-	return false
+	return flag
 end
 `

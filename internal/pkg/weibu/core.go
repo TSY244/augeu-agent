@@ -53,3 +53,21 @@ func GetFilesReport(targets []string, c *Config, proxys ...string) ([]string, er
 	}
 	return resp, nil
 }
+
+func GetMultiEngines(target string, a *Config, proxy string) (string, error) {
+	url := fmt.Sprintf("https://api.threatbook.cn/v3/file/report?apikey=%s&sandbox_type=win10_1903_enx64_office2016&resource=%s&query_fields=summary&query_fields=multiengines", a.Conf.WeiBuApiKey, target)
+	if a.Conf.Mode != consts.RemoteMode {
+		ret, err := augeuHttp.GetRequest(url, a.Header, proxy)
+		if err != nil {
+			return "", err
+		}
+		// json data -> response
+		wbResp := weiBuResponse{}
+		err = json.Unmarshal([]byte(ret), &wbResp)
+		if err != nil {
+			return "", err
+		}
+		return wbResp.Data.Summary.MultiEngines, nil
+	}
+	return "", nil
+}

@@ -74,6 +74,7 @@ func NewAgent(c *param.Config) *Agent {
 		"base":         engUtils.NewBase(),
 		"agent":        agent,
 		"weibu":        engUtils.NewWeiBuUtils(),
+		"check":        engUtils.NewCheck(),
 	}
 	return agent
 }
