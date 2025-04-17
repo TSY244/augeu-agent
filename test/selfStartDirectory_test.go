@@ -15,6 +15,7 @@ begin
 	printer.PrintStrSlice(files,"remind" ,@name)
 	return false
 end
+
 rule "自启动文件夹下检测2" "basic"  salience 0
 begin
 	path="%appdata%\Microsoft\Windows\Start Menu\Programs\Startup"
@@ -26,7 +27,7 @@ end
 `
 )
 
-func TestRun(t *testing.T) {
+func TestSelfStartDirectoryRule(t *testing.T) {
 	agentConf := agent.Config{
 		Mode: agent.BasicMode,
 	}

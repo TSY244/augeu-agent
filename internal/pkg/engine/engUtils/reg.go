@@ -1,9 +1,10 @@
-package agent
+package engUtils
 
 import (
 	"augeu-agent/pkg/logger"
 	"augeu-agent/pkg/registration"
 	"golang.org/x/sys/windows/registry"
+	"regexp"
 )
 
 type Reg struct {
@@ -57,4 +58,20 @@ func (r *Reg) IsPathWithSubKey(path string, subKey string) bool {
 }
 func (r *Reg) IsPathWithName(path string, name string) bool {
 	return registration.IsPathWithName(path, name)
+}
+
+func (r *Reg) GetPathFromCmd(cmd string) string {
+	re := regexp.MustCompile(`^"([^"]+)"|^([^ "]+)`) // 匹配带引号和不带引号的路径
+	matches := re.FindStringSubmatch(cmd)
+	if len(matches) == 0 {
+		return ""
+	}
+
+	var path string
+	if matches[1] != "" { // 带引号的路径
+		path = matches[1]
+	} else { // 不带引号的路径
+		path = matches[2]
+	}
+	return path
 }

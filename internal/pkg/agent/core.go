@@ -29,10 +29,11 @@ func NewAgent(c *Config) *Agent {
 		//Eng:  engine.NewEngine(),
 		ApiOuter: map[string]interface{}{
 			"println":      fmt.Println,
-			"reg":          NewReg(),
+			"reg":          engUtils.NewReg(),
 			"strUtils":     engUtils.NewStrUtils(),
 			"fileSysUtils": engUtils.NewFileSys(),
 			"printer":      engUtils.NewPrinter(),
+			"base":         engUtils.NewBase(),
 		},
 	}
 }
@@ -103,7 +104,7 @@ func (a *Agent) baseRun() error {
 func (a *Agent) basicRun() {
 	err := a.baseRun()
 	if err != nil {
-		logger.Infof("basic run error: %v", err)
+		logger.Errorf("basic run error: %v", err)
 		os.Exit(1)
 	}
 }

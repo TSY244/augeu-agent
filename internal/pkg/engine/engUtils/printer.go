@@ -3,6 +3,7 @@ package engUtils
 import (
 	"augeu-agent/pkg/color"
 	"augeu-agent/pkg/logger"
+	"augeu-agent/pkg/util/convert"
 	"strings"
 )
 
@@ -23,19 +24,23 @@ func NewPrinter() *Printer {
 }
 
 func (r *Printer) Info(value interface{}) {
-	color.White(InfoPrint, value)
+	raw := convert.Any2Str(value)
+	color.White(InfoPrint, raw)
 }
 
 func (r *Printer) Warn(value interface{}) {
-	color.Yellow(WarnPrint, value)
+	raw := convert.Any2Str(value)
+	color.Yellow(WarnPrint, raw)
 }
 
 func (r *Printer) Debug(value interface{}) {
-	color.Magenta(DebugPrinter, value)
+	raw := convert.Any2Str(value)
+	color.Magenta(DebugPrinter, raw)
 }
 
 func (r *Printer) Error(value interface{}) {
-	color.Red(ErrorPrinter, value)
+	raw := convert.Any2Str(value)
+	color.Red(ErrorPrinter, raw)
 }
 
 func (r *Printer) Remind(value interface{}) {

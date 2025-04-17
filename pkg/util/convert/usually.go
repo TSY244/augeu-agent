@@ -1,7 +1,9 @@
 package convert
 
 import (
+	"fmt"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -55,4 +57,21 @@ func Str2Time(s string) (time.Duration, error) {
 		return 0, err
 	}
 	return time.Duration(i) * time.Second, nil
+}
+
+func Int2Str(i int) string {
+	return strconv.Itoa(i)
+}
+
+func Uint642Str(i uint64) string {
+	return strconv.FormatUint(i, 10)
+}
+
+func Strings2Str(strSlice []string) string {
+	return strings.Join(strSlice, ",")
+}
+
+func Any2Str(a interface{}) string {
+	return fmt.Sprintf("%v", a)
+
 }
