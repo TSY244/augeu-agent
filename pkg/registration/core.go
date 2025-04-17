@@ -1,6 +1,7 @@
 package registration
 
 import (
+	"augeu-agent/pkg/logger"
 	"fmt"
 	"golang.org/x/sys/windows/registry"
 	"strings"
@@ -216,4 +217,19 @@ func IsPathWithSubKey(path string, subKey string) bool {
 		}
 	}
 	return false
+}
+
+// IsHavePath 判断一个path 是否存在
+func IsHavePath(path string) bool {
+	root, otherPath, err := RegSplit(path)
+	if err != nil {
+		logger.Errorf("reg split error: %v", err)
+		return false
+	}
+	_, err = registry.OpenKey(root, otherPath, registry.QUERY_VALUE)
+	if err != nil {
+		//logger.Errorf("open key error: %v", err)
+		return false
+	}
+	return true
 }

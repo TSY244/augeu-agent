@@ -1,7 +1,7 @@
 package engUtils
 
 import (
-	"strconv"
+	"fmt"
 	"strings"
 )
 
@@ -18,20 +18,7 @@ func NewStrUtils() *StrUtils {
 }
 
 func (s *StrUtils) ToStr(obj interface{}) string {
-	switch obj.(type) {
-	case string:
-		return obj.(string)
-	case int:
-		return strconv.Itoa(obj.(int))
-	case int64:
-		return strconv.FormatInt(obj.(int64), 10)
-	case float64:
-		return strconv.FormatFloat(obj.(float64), 'f', -1, 64)
-	case bool:
-		return strconv.FormatBool(obj.(bool))
-	default:
-		return ""
-	}
+	return fmt.Sprintf("%v", obj)
 }
 func (s *StrUtils) IsEmpty(str string) bool {
 	return str == ""
@@ -94,4 +81,13 @@ func (s *StrUtils) AddPrefixs(strSlice []string, prefix string) []string {
 		strSlice[i] = prefix + v
 	}
 	return strSlice
+}
+
+func (s *StrUtils) StrSliceContains(strSlice []string, str string) bool {
+	for _, v := range strSlice {
+		if v == str {
+			return true
+		}
+	}
+	return false
 }

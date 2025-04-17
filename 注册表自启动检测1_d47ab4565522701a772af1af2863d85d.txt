@@ -1,0 +1,14 @@
+威胁等级:threat_level -> clean
+威胁分类:malware_type -> 
+病毒家族:malware_family -> 
+文件名称:file_name -> is-5CMQA.tmp
+文件类型:file_type -> EXEx86
+文件的sha256值:sample_sha256 -> 13ae6023eef7c353586fcbba5046ca128857612a06369e7c0605765355b2b66e
+文件的MD5值:md5 -> d47ab4565522701a772af1af2863d85d
+文件的SHA1值:sha1 -> a7f689e1a109891f510b9fbbc932e565f8bed358
+威胁分数:threat_score -> 0
+反病毒扫描引擎检出率:multi_engines -> 0/28
+标签.检测标签[0]:x -> 
+标签.检测标签[1]:x -> 
+进程行为.进程名称.英文:en -> 
+进程行为.进程名称.中文:cn -> 

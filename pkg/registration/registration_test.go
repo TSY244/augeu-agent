@@ -80,3 +80,11 @@ func TestGetRegPathValue(t *testing.T) {
 		t.Log(name, value)
 	}
 }
+
+func TestIsHavePath(t *testing.T) {
+	isH := IsHavePath(`HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Run`)
+	if isH {
+		t.Log("have path")
+	}
+
+}

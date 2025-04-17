@@ -75,3 +75,7 @@ func (r *Reg) GetPathFromCmd(cmd string) string {
 	}
 	return path
 }
+
+func (r *Reg) IsHavePath(path string) bool {
+	return registration.IsHavePath(path)
+}
