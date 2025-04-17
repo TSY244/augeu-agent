@@ -3,8 +3,10 @@ package agent
 import (
 	"augeu-agent/internal/pkg/engine/engUtils"
 	"augeu-agent/internal/pkg/param"
+	"augeu-agent/internal/utils/consts"
 	"augeu-agent/pkg/color"
 	"augeu-agent/pkg/logger"
+	"context"
 	"fmt"
 	engine2 "github.com/bilibili/gengine/engine"
 	"os"
@@ -12,48 +14,81 @@ import (
 )
 
 type Agent struct {
-	Conf *Config
+	RootCtx context.Context
+	Cancel  context.CancelFunc
+	Conf    *param.Config
 	//Eng      *engine.Engine
 	Rule     string
 	ApiOuter map[string]interface{}
+	ClientId string
+	Jwt      string
+	Header   map[string]string
 }
 
-type Config struct {
-	ConfigPath string
-	Mode       string
-}
+func NewAgent(c *param.Config) *Agent {
+	checkConf(c)
+	rootCtx, cancel := context.WithCancel(context.Background())
 
-func NewAgent(c *Config) *Agent {
-	return &Agent{
-		Conf: c,
+	//// websocket
+	//ws, resp, err := websocket.DefaultDialer.Dial(c.WebsocketAddr, nil)
+	//if err != nil {
+	//	logger.Errorf("Failed to dial websocket: %v", err)
+	//	cancel()
+	//	return nil
+	//}
+	//if resp.StatusCode != 101 {
+	//	logger.Errorf("Failed to dial websocket: %v", resp.Status)
+	//	cancel()
+	//	return nil
+	//}
+	//go func() {
+	//	for {
+	//		select {
+	//		case <-rootCtx.Done():
+	//			logger.Infof("websocket connection closed")
+	//			return
+	//		default:
+	//		}
+	//
+	//		_, _, err := ws.ReadMessage()
+	//		if err != nil {
+	//			logger.Errorf("Lost Connection to server: %v", err)
+	//			cancel()
+	//			return
+	//		}
+	//
+	//	}
+	//}()
+	agent := &Agent{
+		Conf:    c,
+		RootCtx: rootCtx,
+		Cancel:  cancel,
 		//Eng:  engine.NewEngine(),
-		ApiOuter: map[string]interface{}{
-			"println":      fmt.Println,
-			"reg":          engUtils.NewReg(),
-			"strUtils":     engUtils.NewStrUtils(),
-			"fileSysUtils": engUtils.NewFileSys(),
-			"printer":      engUtils.NewPrinter(),
-			"base":         engUtils.NewBase(),
-		},
 	}
+	agent.ApiOuter = map[string]interface{}{
+		"println":      fmt.Println,
+		"reg":          engUtils.NewReg(),
+		"strUtils":     engUtils.NewStrUtils(),
+		"fileSysUtils": engUtils.NewFileSys(),
+		"printer":      engUtils.NewPrinter(),
+		"base":         engUtils.NewBase(),
+		"agent":        agent,
+		"weibu":        engUtils.NewWeiBuUtils(),
+	}
+	return agent
 }
 
 func (a *Agent) Run() {
-	//	a.Rule = `
-	//rule "name test" "i can"  salience 0
-	//begin
-	//	println("asdfasdf")
-	//end
-	//`
-
 	switch a.Conf.Mode {
-	case BasicMode:
+	case consts.BasicMode:
+		a.SetRule(BasicRule)
 		logger.Infof("basic mode")
 		a.basicRun()
-	case RemoteMode:
+	case consts.RemoteMode:
+		a.receiveClientId()
 		logger.Infof("remote mode")
 		a.remoteRun()
-	case LocalMode:
+	case consts.LocalMode:
 		logger.Infof("local mode")
 		a.localRun()
 	default:
@@ -68,7 +103,7 @@ func (a *Agent) SetRule(rule string) {
 
 func (a *Agent) baseRun() error {
 	//a.AddObject()
-	engPool, err := engine2.NewGenginePool(MinLen, MaxLen, Parallel, a.Rule, a.ApiOuter)
+	engPool, err := engine2.NewGenginePool(consts.MinLen, consts.MaxLen, consts.Parallel, a.Rule, a.ApiOuter)
 	//err := a.Eng.LoadRule(a.Rule)
 	if err != nil {
 		return err
@@ -123,4 +158,42 @@ func (a *Agent) localRun() {
 		logger.Infof("basic run error: %v", err)
 		os.Exit(1)
 	}
+}
+
+func checkConf(c *param.Config) {
+	if c == nil {
+		logger.Errorf("config is nil")
+		param.Help()
+		os.Exit(1)
+	}
+	if c.Mode == "" {
+		logger.Errorf("mode is empty")
+		param.Help()
+		os.Exit(1)
+	} else {
+		if c.Mode != consts.BasicMode && c.ConfigPath == "" {
+			logger.Errorf("config path is empty")
+			param.Help()
+			os.Exit(1)
+		}
+		if c.Mode == consts.RemoteMode && (c.RemoteAddr == "" || c.Secret == "") {
+			logger.Errorf("remote addr or secret is empty")
+			param.Help()
+			os.Exit(1)
+		}
+	}
+}
+
+func (a *Agent) receiveClientId() {
+	jwt, clientId, err := a.GetClientId()
+	if err != nil {
+		panic(err)
+	}
+	a.ClientId = clientId
+	a.Jwt = jwt
+	a.Header = map[string]string{
+		"Authorization": jwt,
+	}
+	logger.Infof("Received client id: %s", clientId)
+	logger.Infof("Received jwt: %s", jwt)
 }

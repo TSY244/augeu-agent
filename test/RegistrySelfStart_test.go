@@ -2,6 +2,8 @@ package test
 
 import (
 	"augeu-agent/internal/pkg/agent"
+	"augeu-agent/internal/pkg/param"
+	"augeu-agent/internal/utils/consts"
 	"testing"
 )
 
@@ -24,8 +26,8 @@ end
 )
 
 func TestRegSelfStart(t *testing.T) {
-	agentConf := agent.Config{
-		Mode: agent.BasicMode,
+	agentConf := param.Config{
+		Mode: consts.BasicMode,
 	}
 	a := agent.NewAgent(&agentConf)
 	a.Rule = RegSelfStartRule1

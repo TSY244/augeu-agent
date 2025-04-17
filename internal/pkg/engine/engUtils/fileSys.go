@@ -3,6 +3,7 @@ package engUtils
 import (
 	"augeu-agent/pkg/fileSystem"
 	"augeu-agent/pkg/logger"
+	"os"
 )
 
 type FileSysUtils struct {
@@ -46,4 +47,36 @@ func (f *FileSysUtils) GetHashsWithFilePaths(filePaths []string) []string {
 		return nil
 	}
 	return hashes
+}
+
+func (f *FileSysUtils) IntoFile(fileName string, data string) error {
+	// 创建一个文件，然后写入数据
+	file, err := os.OpenFile(fileName, os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		logger.Errorf("create file error: %v", err)
+		return err
+	}
+	defer file.Close()
+	_, err = file.WriteString(data)
+	if err != nil {
+		logger.Errorf("write file error: %v", err)
+		return err
+	}
+	return nil
+}
+
+func (f *FileSysUtils) AddToFile(fileName string, data string) error {
+	// 创建一个文件，然后写入数据
+	file, err := os.OpenFile(fileName, os.O_APPEND|os.O_WRONLY, 0644)
+	if err != nil {
+		logger.Errorf("create file error: %v", err)
+		return err
+	}
+	defer file.Close()
+	_, err = file.WriteString(data)
+	if err != nil {
+		logger.Errorf("write file error: %v", err)
+		return err
+	}
+	return nil
 }

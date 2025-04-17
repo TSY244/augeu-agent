@@ -1,6 +1,10 @@
 package agent
 
-import "testing"
+import (
+	"augeu-agent/internal/pkg/param"
+	"augeu-agent/internal/utils/consts"
+	"testing"
+)
 
 const (
 	StrUtilsCheck = `
@@ -14,8 +18,8 @@ end
 )
 
 func TestReg(t *testing.T) {
-	agentConf := Config{
-		Mode: BasicMode,
+	agentConf := param.Config{
+		Mode: consts.BasicMode,
 	}
 	agent := NewAgent(&agentConf)
 	agent.Rule = `
@@ -36,8 +40,8 @@ end
 }
 
 func TestStrUtils(t *testing.T) {
-	agentConf := Config{
-		Mode: BasicMode,
+	agentConf := param.Config{
+		Mode: consts.BasicMode,
 	}
 	agent := NewAgent(&agentConf)
 	agent.Rule = StrUtilsCheck
