@@ -83,9 +83,25 @@ func (s *StrUtils) AddPrefixs(strSlice []string, prefix string) []string {
 	return strSlice
 }
 
+// StrSliceContains 判断字符串切片中是否包含某个字符串
 func (s *StrUtils) StrSliceContains(strSlice []string, str string) bool {
 	for _, v := range strSlice {
 		if v == str {
+			return true
+		}
+	}
+	return false
+}
+
+// GeneABackslash 生成1个反斜杠
+func (s *StrUtils) GeneABackslash() string {
+	return "\\"
+}
+
+// StrSliceContainsIgnoreCase 判断字符串切片中是否包含某个字符串，忽略大小写
+func (s *StrUtils) StrSliceContainsIgnoreCase(strSlice []string, str string) bool {
+	for _, v := range strSlice {
+		if strings.ToLower(v) == strings.ToLower(str) {
 			return true
 		}
 	}
