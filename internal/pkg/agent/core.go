@@ -154,16 +154,17 @@ func (a *Agent) remoteRun() {
 }
 
 func (a *Agent) localRun() {
-	err := a.baseRun()
+	err := a.GetLocalRule(a.Conf.ConfigPath)
 	if err != nil {
-		logger.Infof("basic run error: %v", err)
+		logger.Errorf("local run error: %v", err)
 		os.Exit(1)
 	}
+	err = a.baseRun()
 }
 
 func checkConf(c *param.Config) {
 	if c == nil {
-		logger.Errorf("config is nil")
+		logger.Errorf("rule is nil")
 		param.Help()
 		os.Exit(1)
 	}
@@ -173,7 +174,7 @@ func checkConf(c *param.Config) {
 		os.Exit(1)
 	} else {
 		if c.Mode != consts.BasicMode && c.ConfigPath == "" {
-			logger.Errorf("config path is empty")
+			logger.Errorf("rule path is empty")
 			param.Help()
 			os.Exit(1)
 		}

@@ -263,7 +263,7 @@ func (s *Server) Serve() (err error) {
 			},
 		}
 
-		// build standard config from server options
+		// build standard rule from server options
 		if s.TLSCertificate != "" && s.TLSCertificateKey != "" {
 			httpsServer.TLSConfig.Certificates = make([]tls.Certificate, 1)
 			httpsServer.TLSConfig.Certificates[0], err = tls.LoadX509KeyPair(string(s.TLSCertificate), string(s.TLSCertificateKey))
@@ -291,7 +291,7 @@ func (s *Server) Serve() (err error) {
 		configureTLS(httpsServer.TLSConfig)
 
 		if len(httpsServer.TLSConfig.Certificates) == 0 && httpsServer.TLSConfig.GetCertificate == nil {
-			// after standard and custom config are passed, this ends up with no certificate
+			// after standard and custom rule are passed, this ends up with no certificate
 			if s.TLSCertificate == "" {
 				if s.TLSCertificateKey == "" {
 					s.Fatalf("the required flags `--tls-certificate` and `--tls-key` were not specified")
