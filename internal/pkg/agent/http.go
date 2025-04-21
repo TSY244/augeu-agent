@@ -18,6 +18,7 @@ const (
 	UploadLoginEventApiPath = "/upload/loginEvent"
 	UploadRdpEventApiPath   = "/upload/rdpEvent"
 	UploadUsersInfoApiPath  = "/upload/usersInfo"
+	GetRuleApiPath          = "/get/rules"
 )
 
 func (a *Agent) GetClientId() (string, string, error) {
@@ -113,4 +114,27 @@ func (a *Agent) PushUsersInfo() error {
 	}
 	logger.Infof("PushUsersInfo success")
 	return nil
+}
+
+func (a *Agent) GetRule() (string, error) {
+	type GetRulesResponse struct {
+		Data         *string `json:"data"`
+		ResponseCode *int64  `json:"response_code"`
+	}
+	ret, err := augeuHttp.GetRequest(a.Conf.RemoteAddr+GetRuleApiPath, a.Header, "")
+	if err != nil {
+		logger.Errorf("GetRule GetRequest error: %v", err)
+		return "", err
+	}
+	var resp GetRulesResponse
+	err = json.Unmarshal([]byte(ret), &resp)
+	if err != nil {
+		logger.Errorf("GetRule json.Unmarshal error: %v", err)
+		return "", err
+	}
+	if resp.Data == nil {
+		logger.Errorf("GetRule resp.Data is nil")
+		return "", err
+	}
+	return *resp.Data, nil
 }

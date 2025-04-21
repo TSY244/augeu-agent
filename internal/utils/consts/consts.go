@@ -2,9 +2,10 @@ package consts
 
 // mode
 const (
-	BasicMode  = "basic"
-	RemoteMode = "remote"
-	LocalMode  = "local"
+	BasicMode      = "basic"
+	RemoteModeApi  = "remoteApi"
+	RemoteModeFile = "remoteFile"
+	LocalMode      = "local"
 )
 
 // pool param

@@ -7,6 +7,7 @@ import (
 	"augeu-agent/pkg/color"
 	"augeu-agent/pkg/logger"
 	"context"
+	"encoding/base64"
 	"fmt"
 	engine2 "github.com/bilibili/gengine/engine"
 	"os"
@@ -85,10 +86,12 @@ func (a *Agent) Run() {
 		a.SetRule(BasicRule)
 		logger.Infof("basic mode")
 		a.basicRun()
-	case consts.RemoteMode:
+	case consts.RemoteModeApi:
 		a.receiveClientId()
-		logger.Infof("remote mode")
-		a.remoteRun()
+		logger.Infof("remoteApi mode")
+		a.remoteAPiRun()
+	case consts.RemoteModeFile:
+		a.remoteAPiRun()
 	case consts.LocalMode:
 		logger.Infof("local mode")
 		a.localRun()
@@ -145,8 +148,19 @@ func (a *Agent) basicRun() {
 	}
 }
 
-func (a *Agent) remoteRun() {
-	err := a.baseRun()
+func (a *Agent) remoteAPiRun() {
+	rule, err := a.GetRule()
+	if err != nil {
+		logger.Errorf("GetRule error: %v", err)
+		os.Exit(1)
+	}
+	rawRule, err := base64.StdEncoding.DecodeString(rule)
+	if err != nil {
+		logger.Errorf("base64 decode error: %v", err)
+		os.Exit(1)
+	}
+	a.SetRule(string(rawRule))
+	err = a.baseRun()
 	if err != nil {
 		logger.Errorf("basic run error: %v", err)
 		os.Exit(1)
@@ -172,18 +186,26 @@ func checkConf(c *param.Config) {
 		logger.Errorf("mode is empty")
 		param.Help()
 		os.Exit(1)
-	} else {
-		if c.Mode != consts.BasicMode && c.ConfigPath == "" {
-			logger.Errorf("rule path is empty")
-			param.Help()
-			os.Exit(1)
-		}
-		if c.Mode == consts.RemoteMode && (c.RemoteAddr == "" || c.Secret == "") {
-			logger.Errorf("remote addr or secret is empty")
-			param.Help()
-			os.Exit(1)
-		}
 	}
+	if c.Mode == consts.BasicMode && c.ConfigPath == "" {
+		return
+	}
+	if c.Mode == consts.RemoteModeApi && c.Secret == "" {
+		logger.Errorf("remote addr or secret is empty")
+		param.Help()
+		os.Exit(1)
+	}
+	if c.Mode == consts.RemoteModeFile && c.ConfigPath == "" {
+		logger.Errorf("remote addr or config path is empty")
+		param.Help()
+		os.Exit(1)
+	}
+	if c.Mode == consts.LocalMode && c.ConfigPath == "" {
+		logger.Errorf("local config path is empty")
+		param.Help()
+		os.Exit(1)
+	}
+
 }
 
 func (a *Agent) receiveClientId() {

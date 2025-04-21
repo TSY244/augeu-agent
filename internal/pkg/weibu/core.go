@@ -10,7 +10,7 @@ import (
 
 func GetFileReport(target string, a *Config, proxy string) (string, error) {
 	url := fmt.Sprintf("https://api.threatbook.cn/v3/file/report?apikey=%s&sandbox_type=win10_1903_enx64_office2016&resource=%s&query_fields=summary&query_fields=multiengines", a.Conf.WeiBuApiKey, target)
-	if a.Conf.Mode != consts.RemoteMode {
+	if a.Conf.Mode != consts.RemoteModeApi {
 		ret, err := augeuHttp.GetRequest(url, a.Header, proxy)
 		if err != nil {
 			return "", err
@@ -56,7 +56,7 @@ func GetFilesReport(targets []string, c *Config, proxys ...string) ([]string, er
 
 func GetMultiEngines(target string, a *Config, proxy string) (string, error) {
 	url := fmt.Sprintf("https://api.threatbook.cn/v3/file/report?apikey=%s&sandbox_type=win10_1903_enx64_office2016&resource=%s&query_fields=summary&query_fields=multiengines", a.Conf.WeiBuApiKey, target)
-	if a.Conf.Mode != consts.RemoteMode {
+	if a.Conf.Mode != consts.RemoteModeApi {
 		ret, err := augeuHttp.GetRequest(url, a.Header, proxy)
 		if err != nil {
 			return "", err
