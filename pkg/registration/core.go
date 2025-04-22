@@ -116,8 +116,8 @@ func GetRegPathValueNames(path string) ([]string, error) {
 	return names, nil
 }
 
-// GetRegPathValue 获取一个path 对应的name 的value
-func GetRegPathValue(path string, name string) (string, error) {
+// GetRegPathStringValue 获取一个path 对应的name 的value，只能用于string 类型的
+func GetRegPathStringValue(path string, name string) (string, error) {
 	root, otherPath, err := RegSplit(path)
 	if err != nil {
 		return "", err
@@ -136,6 +136,46 @@ func GetRegPathValue(path string, name string) (string, error) {
 		return "", err
 	}
 	return value, nil
+}
+
+// GetRegPathBinaryValue 获取一个path 对应的name 的value，只能用于binary 类型的
+//func GetRegPathBinaryValue(path string, name string) (string, error) {
+//	root, otherPath, err := RegSplit(path)
+//	if err != nil {
+//		return "", err
+//	}
+//	reg, err := registry.OpenKey(root, otherPath, registry.QUERY_VALUE)
+//	if err != nil {
+//		return "", err
+//	}
+//	defer reg.Close()
+//	valueType, err := RegNameType(reg, name)
+//	if err != nil {
+//		return "", err
+//	}
+//	value, err := getRegPathValueBase(reg, name, valueType)
+//	if err != nil {
+//		return "", err
+//	}
+//	return value, nil
+//}
+
+// GetDefaultRegPathValue 获取一个path 的默认value
+func GetDefaultRegPathValue(path string) (string, error) {
+	root, otherPath, err := RegSplit(path)
+	if err != nil {
+		return "", err
+	}
+	reg, err := registry.OpenKey(root, otherPath, registry.QUERY_VALUE)
+	if err != nil {
+		return "", err
+	}
+	defer reg.Close()
+	valueType, err := RegNameType(reg, "")
+	if err != nil {
+		return "", err
+	}
+	return fmt.Sprintf("%d", valueType), nil
 }
 
 // getRegPathValueBase 一个通用的获取value 的方法

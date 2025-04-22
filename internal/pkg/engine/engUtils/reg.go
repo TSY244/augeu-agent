@@ -34,8 +34,8 @@ func (r *Reg) GetRegPathValueNames(path string) []string {
 }
 
 func (r *Reg) GetRegPathValue(path string, name string) string {
-	//return registration.GetRegPathValue(path, name)
-	value, err := registration.GetRegPathValue(path, name)
+	//return registration.GetRegPathStringValue(path, name)
+	value, err := registration.GetRegPathStringValue(path, name)
 	if err != nil {
 		logger.Errorf("get reg path value error: %v", err)
 		return ""
@@ -78,4 +78,13 @@ func (r *Reg) GetPathFromCmd(cmd string) string {
 
 func (r *Reg) IsHavePath(path string) bool {
 	return registration.IsHavePath(path)
+}
+
+func (r *Reg) GetDefaultRegPathValue(path string) string {
+	ret, err := registration.GetDefaultRegPathValue(path)
+	if err != nil {
+		logger.Errorf("get reg path value error: %v", err)
+		return ""
+	}
+	return ret
 }

@@ -107,3 +107,8 @@ func (s *StrUtils) StrSliceContainsIgnoreCase(strSlice []string, str string) boo
 	}
 	return false
 }
+
+// GetDollarSign 获取一个$符号
+func (s *StrUtils) GetDollarSign() string {
+	return "$"
+}

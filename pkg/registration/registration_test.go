@@ -72,7 +72,7 @@ func TestGetRegPathValue(t *testing.T) {
 		return
 	}
 	for _, name := range names {
-		value, err := GetRegPathValue("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows Mail", name)
+		value, err := GetRegPathStringValue("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows Mail", name)
 		if err != nil {
 			t.Error(err)
 			return
@@ -87,4 +87,28 @@ func TestIsHavePath(t *testing.T) {
 		t.Log("have path")
 	}
 
+}
+
+func TestGetRegPathValue2(t *testing.T) {
+	path := "HKEY_LOCAL_MACHINE\\SAM\\SAM\\Domains\\Account\\Users\\Names\\12414"
+	// 获取这个路径下的默认值
+	value, err := GetDefaultRegPathValue(path)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	t.Log(value)
+	//names, err := GetRegPathValueNames("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows Mail")
+	//if err != nil {
+	//	t.Error(err)
+	//	return
+	//}
+	//for _, name := range names {
+	//	value, err := GetRegPathStringValue("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows Mail", name)
+	//	if err != nil {
+	//		t.Error(err)
+	//		return
+	//	}
+	//	t.Log(name, value)
+	//}
 }
