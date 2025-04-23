@@ -185,28 +185,62 @@ const BasicRule = `
 //	return flag
 //end
 	
+//
+//rule "隐藏用户" "basic"  salience 0
+//begin
+//	path="HKEY_LOCAL_MACHINE\SAM\SAM\Domains\Account\Users\Names"
+//	subKeys=reg.GetPathSubKeys(path)
+//	target=strUtils.GetDollarSign()
+//	flag2=strUtils.StrSliceContainsIgnoreCase(subKeys,target)
+//	if flag2{
+//		printer.Warn(@name+" 中存在$ 键在"+path+" 下，可能存在隐藏用户",@name)
+//		return false
+//	}
+//	pathWithSubKey=strUtils.AddPrefixs(subKeys,path+strUtils.GeneABackslash())
+//	flag=0
+//	forRange i:=pathWithSubKey{
+//		newPath=pathWithSubKey[i]
+//		printer.Info(newPath)
+//		names=reg.GetRegPathValueNames(newPath)
+//		ret=reg.GetDefaultRegPathValue(newPath)
+//		if ret=="500"{
+//			flag=flag+1
+//		}
+//	}
+//	return flag<2
+//end
 
-rule "隐藏用户" "basic"  salience 0
+//
+//rule "AppCertDlls" "basic" salience 0
+//begin
+//	path="HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\SessionManager\AppCertDlls"
+//	isHavePath=reg.IsHavePath(path)
+//	if !isHavePath{
+//		printer.Info(@name+" 中不存在"+path+" 路径，所以安全",@name)
+//		return true
+//	}
+//	printer.Warn(@name+" 存在"+path+" 路径",@name)
+//	ret=reg.GetDefaultRegPathValue(path)
+//	if ret ==""{
+//	printer.Info(@name+"没有键值",@name)
+//		return false
+//	}
+//end
+
+
+rule "AppInit_DLLs " "basic" salience 0
 begin
-	path="HKEY_LOCAL_MACHINE\SAM\SAM\Domains\Account\Users\Names"
-	subKeys=reg.GetPathSubKeys(path)
-	target=strUtils.GetDollarSign()
-	flag2=strUtils.StrSliceContainsIgnoreCase(subKeys,target)
-	if flag2{
-		printer.Warn(@name+" 中存在$ 键在"+path+" 下，可能存在隐藏用户",@name)
+	path="HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Windows\AppInit_DLLs"
+	isHavePath=reg.IsHavePath(path)
+	if !isHavePath{
+		printer.Info(@name+" 中不存在"+path+" 路径，所以安全",@name)
+		return true
+	}
+	printer.Warn(@name+" 存在"+path+" 路径",@name)
+	ret=reg.GetDefaultRegPathValue(path)
+	if ret ==""{
+	printer.Info(@name+"没有键值",@name)
 		return false
 	}
-	pathWithSubKey=strUtils.AddPrefixs(subKeys,path+strUtils.GeneABackslash())
-	flag=0
-	forRange i:=pathWithSubKey{
-		newPath=pathWithSubKey[i]
-		printer.Info(newPath)
-		names=reg.GetRegPathValueNames(newPath)
-		ret=reg.GetDefaultRegPathValue(newPath)
-		if ret=="500"{
-			flag=flag+1
-		}
-	}
-	return flag<2
 end
 `
