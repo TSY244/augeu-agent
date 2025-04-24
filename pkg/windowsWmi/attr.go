@@ -64,3 +64,12 @@ type Win32_Service struct {
 	StartMode   string `wmi:"StartMode"`
 	StartName   string `wmi:"StartName"`
 }
+
+type Win32_ServiceDetail struct {
+	Name        string `wmi:"Name"`        // 服务内部名称
+	DisplayName string `wmi:"DisplayName"` // 服务显示名称
+	State       string `wmi:"State"`       // 当前状态（如 Running/Stopped）
+	StartMode   string `wmi:"StartMode"`   // 启动类型（如 Auto/Manual）
+	StartName   string `wmi:"StartName"`   // 服务运行的用户账户
+	PathName    string `wmi:"PathName"`    // 服务可执行文件路径（可选扩展）
+}

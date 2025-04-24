@@ -30,13 +30,13 @@ func TestQuery(t *testing.T) {
 	//	t.Error(err)
 	//}
 	//t.Log("hotFix: ", ret2)
-	ret3, err := QueryUsers()
-	if err != nil {
-		t.Error(err)
-	}
-	for _, user := range ret3 {
-		t.Log(user)
-	}
+	//ret3, err := QueryUsers()
+	//if err != nil {
+	//	t.Error(err)
+	//}
+	//for _, user := range ret3 {
+	//	t.Log(user)
+	//}
 	//ret4, err := QueryScheduledTasks()
 	//if err != nil {
 	//	t.Error(err)
@@ -52,4 +52,12 @@ func TestQuery(t *testing.T) {
 	//	t.Log(task)
 	//}
 
+	ret6, err := QueryServicesDetail()
+	if err != nil {
+		t.Error(err)
+	}
+	for _, task := range ret6 {
+		t.Logf("name: %s, displayName: %s, state: %s, startMode: %s, startName: %s, pathName: %s",
+			task.Name, task.DisplayName, task.State, task.StartMode, task.StartName, task.PathName)
+	}
 }

@@ -119,3 +119,12 @@ func QueryServices() ([]Win32_Service, error) {
 	}
 	return dst, nil
 }
+
+// QueryServicesDetail 查询所有Windows服务
+func QueryServicesDetail() ([]Win32_ServiceDetail, error) {
+	var dst []Win32_ServiceDetail
+	if err := baseSlice(&dst, QueryServiceDetailKey); err != nil {
+		return nil, err
+	}
+	return dst, nil
+}

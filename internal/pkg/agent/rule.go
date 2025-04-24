@@ -227,20 +227,42 @@ const BasicRule = `
 //	}
 //end
 
+//
+//rule "AppInit_DLLs " "basic" salience 0
+//begin
+//	path="HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Windows\AppInit_DLLs"
+//	isHavePath=reg.IsHavePath(path)
+//	if !isHavePath{
+//		printer.Info(@name+" 中不存在"+path+" 路径，所以安全",@name)
+//		return true
+//	}
+//	printer.Warn(@name+" 存在"+path+" 路径",@name)
+//	ret=reg.GetDefaultRegPathValue(path)
+//	if ret ==""{
+//	printer.Info(@name+"没有键值",@name)
+//		return false
+//	}
+//end
 
-rule "AppInit_DLLs " "basic" salience 0
+
+rule "service 检查" "basic" salience 0
 begin
-	path="HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Windows\AppInit_DLLs"
-	isHavePath=reg.IsHavePath(path)
-	if !isHavePath{
-		printer.Info(@name+" 中不存在"+path+" 路径，所以安全",@name)
-		return true
+	imgPaths=service.GetServiceImagePath()
+	//printer.Info(ret)
+	flag=true
+	forRange i:=imgPaths{
+		newPath=imgPaths[i]
+		//printer.Info(newPath)
+		hash=fileSysUtils.GetHashWithFilePath(newPath)
+		result=weibu.GetFileReport(hash,agent.GetWeiBuConf(),"")
+		seg=base.GeneFileSegmentation(100,"-")
+	    //printer.Info(result+seg)	
+		flag=flag&&check.CheckHash(hash,agent.GetWeiBuConf(),"",0.5)
+		if !flag {
+			printer.Warn(newPath+" 微步结果是false")
+			return flag 
+		}
 	}
-	printer.Warn(@name+" 存在"+path+" 路径",@name)
-	ret=reg.GetDefaultRegPathValue(path)
-	if ret ==""{
-	printer.Info(@name+"没有键值",@name)
-		return false
-	}
+	return flag
 end
 `
