@@ -10,506 +10,519 @@ begin
 	return false
 end
 
-//
-//rule "自启动文件夹下检测2" "basic"  salience 0
-//begin
-//	path="%appdata%\Microsoft\Windows\Start Menu\Programs\Startup"
-//	files=fileSysUtils.LsFile(path)
-//	printer.Warn(@name+" 当前windows 不支持link 解析，请手动分析，当前路径 "+path+" 路径下有一下的文件：")
-//	printer.PrintStrSlice(files,"remind",@name)
-//	return false
-//end
-//
-//
-//rule "注册表自启动检测1" "basic"  salience 0
-//begin
-//	path="HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run"
-//	names=reg.GetRegPathValueNames(path)
-//	size=base.SizeForStr(names)
-//	flag=true
-//	forRange i:=names{
-//		ret=reg.GetRegPathValue(path,names[i])
-//		printer.Info(ret,@name)		
-//		r=reg.GetPathFromCmd(ret)
-//		hash=fileSysUtils.GetHashWithFilePath(r)
-//		result=weibu.GetFileReport(hash,agent.GetWeiBuConf(),"")
-//		seg=base.GeneFileSegmentation(100,"-")
-//	    //printer.Info(result+seg)	
-//		flag=flag&&check.CheckHash(hash,agent.GetWeiBuConf(),"",0.5)
-//		fileSysUtils.IntoFile(@name+"_"+hash+".txt",result)
-//	}
-//	return flag
-//end
-//
-//rule "注册表自启动检测2" "basic"  salience 0
-//begin
-//	path="HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\RunOnce"
-//	names=reg.GetRegPathValueNames(path)
-//	size=base.SizeForStr(names)
-//	flag=true
-//	forRange i:=names{
-//		ret=reg.GetRegPathValue(path,names[i])
-//		printer.Info(ret,@name)		
-//		r=reg.GetPathFromCmd(ret)
-//		hash=fileSysUtils.GetHashWithFilePath(r)
-//		result=weibu.GetFileReport(hash,agent.GetWeiBuConf(),"")
-//		seg=base.GeneFileSegmentation(100,"-")
-//	    //printer.Info(result+seg)	
-//		flag=flag&&check.CheckHash(hash,agent.GetWeiBuConf(),"",0.5)
-//		fileSysUtils.IntoFile(@name+"_"+hash+".txt",result)
-//	}
-//	return flag
-//end
-//
-//rule "LogonScript（优先于AV）" "basic"  salience 0
-//begin
-//	path="HKEY_CURRENT_USER\Environment"
-//	names=reg.GetRegPathValueNames(path)
-//	flag=true
-//	flag2=strUtils.StrSliceContains(names,"UserInitMprLogonScript")
-//	if flag2{
-//		printer.Warn(@name+" 中存在UserInitMprLogonScript 键在HKEY_CURRENT_USER\Environment 下",@name)
-//	}else{
-//		printer.Info(@name+" 中不存在UserInitMprLogonScript 键在HKEY_CURRENT_USER\Environment 下，所以安全",@name)
-//		return flag
-//	}
-//	value:=reg.GetRegPathValue(path,"UserInitMprLogonScript")
-//	hashRet=fileSysUtils.GetHashWithFilePath(value)
-//	printer.Info(hashRet,@name)
-//	flag=check.CheckHash(hashRet,agent.GetWeiBuConf(),"",0.5)
-//	return flag
-//end
-//
-//rule "屏幕保护后门检测" "basic"  salience 0
-//begin
-//	path="HKEY_CURRENT_USER\Control Panel\Desktop"
-//	names=reg.GetRegPathValueNames(path)
-//	flag=true
-//	flag2=strUtils.StrSliceContains(names,"SCRNSAVE.EXE")
-//	if flag2{
-//		printer.Warn(@name+" 中存在SCRNSAVE.EXE 键在"+path+" 下",@name)
-//	}else{
-//		printer.Info(@name+" 中不存在SCRNSAVE.EXE 键在"+path+" 下，所以安全",@name)
-//		return flag
-//	}
-//	value:=reg.GetRegPathValue(path,"SCRNSAVE.EXE")
-//	hashRet=fileSysUtils.GetHashWithFilePath(value)
-//	printer.Info(hashRet,@name)
-//	flag=check.CheckHash(hashRet,agent.GetWeiBuConf(),"",0.5)
-//	return flag
-//end
-//
-//
-//rule "inf文件后门（先于大部分软件）" "basic"  salience 0
-//begin
-//	path="HKEY_CURRENT_USER\Software\Microsoft\IEAK\GroupPolicy\PendingGPOs"
-//	flag=reg.IsHavePath(path)
-//	if flag{
-//		printer.Warn(@name+" 中存在HKEY_CURRENT_USER\Software\Microsoft\IEAK\GroupPolicy\PendingGPOs 路径",@name)
-//	}else{
-//		printer.Info(@name+" 中不存在HKEY_CURRENT_USER\Software\Microsoft\IEAK\GroupPolicy\PendingGPOs 路径，所以安全",@name)
-//		return true
-//	}
-//	exePath=reg.GetRegPathValue(path,"Path1")
-//	printer.Info(exePath,@name)
-//	hashRet=fileSysUtils.GetHashWithFilePath(exePath)
-//	printer.Info(hashRet,@name)
-//	flag=check.CheckHash(hashRet,agent.GetWeiBuConf(),"",0.5)
-//	return flag
-//end
-//
-//
-//rule "系统级自启动-注册表统一检测任务" "basic"  salience 0
-//begin
-//	pathes=strUtils.CraterStrSlice("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Run",
-//"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce",
-//"HKEY_LOCAL_MACHINE\SOFTWAREWOW6432Node\Microsoft Windows\CurrentVersion\Run",
-//"HKEY_LOCAL_MACHINE\SOFTWAREWOW6432Node\Microsoft\Windows\CurrentVersion\RunOnce",
-//"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnceEx\0001",
-//"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnceEx\0001\Depend")
-//
-//	forRange i:=pathes{
-//		path=pathes[i]
-//		isHavePath=reg.IsHavePath(path)
-//		if !isHavePath{
-//			printer.Info(@name+" 中不存在"+path+" 路径，所以安全",@name)
-//			continue
-//		}
-//		names=reg.GetRegPathValueNames(path)
-//		size=base.SizeForStr(names)
-//		flag=true
-//		forRange i:=names{
-//			ret=reg.GetRegPathValue(path,names[i])
-//			printer.Info(ret,@name)
-//			r=reg.GetPathFromCmd(ret)
-//			hash=fileSysUtils.GetHashWithFilePath(r)
-//			result=weibu.GetFileReport(hash,agent.GetWeiBuConf(),"")
-//			seg=base.GeneFileSegmentation(100,"-")
-//		    //printer.Info(result+seg)
-//		}
-//	}
-//	return false
-//end
-//
-//
-//rule "镜像劫持" "basic"  salience 0
-//begin
-//	path="HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options"
-//	isHavePath=reg.IsHavePath(path)
-//	if !isHavePath{
-//		printer.Info(@name+" 中不存在"+path+" 路径，所以安全",@name)
-//		return true
-//	}
-//	subKeys=reg.GetPathSubKeys(path)
-//	pathWithSubKey=strUtils.AddPrefixs(subKeys,path+strUtils.GeneABackslash())
-//	flag=false
-//	forRange i:=pathWithSubKey{
-//		newPath=pathWithSubKey[i]
-//		printer.Info(newPath)
-//		names=reg.GetRegPathValueNames(newPath)
-//		flag2=strUtils.StrSliceContainsIgnoreCase(names,"debugger")
-//		if flag2{
-//			printer.Warn(@name+" 中存在debugger 键在"+path+" 下",@name)
-//		}else{
-//			//printer.Info(@name+" 中不存在debugger 键在"+path+" 下，所以安全",@name)
-//			continue
-//		}
-//		ret=reg.GetRegPathValue(newPath,"debugger")
-//		printer.Info(ret,@name)
-//		r=reg.GetPathFromCmd(ret)
-//		printer.Warn("存在恶意键debugger: "+r,@name)
-//		hash=fileSysUtils.GetHashWithFilePath(r)
-//		result=check.CheckHash(hash,agent.GetWeiBuConf(),"",0.5)
-//		flag=flag && !result
-//	}
-//	return flag
-//end
-//	
-//
-//rule "隐藏用户" "basic"  salience 0
-//begin
-//	path="HKEY_LOCAL_MACHINE\SAM\SAM\Domains\Account\Users\Names"
-//	subKeys=reg.GetPathSubKeys(path)
-//	target=strUtils.GetDollarSign()
-//	flag2=strUtils.StrSliceContainsIgnoreCase(subKeys,target)
-//	if flag2{
-//		printer.Warn(@name+" 中存在$ 键在"+path+" 下，可能存在隐藏用户",@name)
-//		return false
-//	}
-//	pathWithSubKey=strUtils.AddPrefixs(subKeys,path+strUtils.GeneABackslash())
-//	flag=0
-//	forRange i:=pathWithSubKey{
-//		newPath=pathWithSubKey[i]
-//		printer.Info(newPath)
-//		names=reg.GetRegPathValueNames(newPath)
-//		ret=reg.GetDefaultRegPathValue(newPath)
-//		if ret=="500"{
-//			flag=flag+1
-//		}
-//	}
-//	return flag<2
-//end
-//
-//
-//rule "AppCertDlls" "basic" salience 0
-//begin
-//	path="HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Session Manager\AppCertDlls"
-//	isHavePath=reg.IsHavePath(path)
-//	if !isHavePath{
-//		printer.Info(@name+" 中不存在"+path+" 路径，所以安全",@name)
-//		return true
-//	}
-//	printer.Warn(@name+" 存在"+path+" 路径",@name)
-//	ret=reg.GetDefaultRegPathValue(path)
-//	if ret ==""{
-//	printer.Info(@name+"没有键值",@name)
-//		return false
-//	}
-//end
-//
-//
-//rule "AppInit_DLLs " "basic" salience 0
-//begin
-//	path="HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Windows\AppInit_DLLs"
-//	isHavePath=reg.IsHavePath(path)
-//	if !isHavePath{
-//		printer.Info(@name+" 中不存在"+path+" 路径，所以安全",@name)
-//		return true
-//	}
-//	printer.Warn(@name+" 存在"+path+" 路径",@name)
-//	ret=reg.GetDefaultRegPathValue(path)
-//	if ret ==""{
-//	printer.Info(@name+"没有键值",@name)
-//		return false
-//	}
-//end
-//
-//
-//rule "service 检查" "basic" salience 0
-//begin
-//	imgPaths=service.GetServiceImagePath()
-//	//printer.Info(ret)
-//	flag=true
-//	forRange i:=imgPaths{
-//		newPath=imgPaths[i]
-//		//printer.Info(newPath)
-//		hash=fileSysUtils.GetHashWithFilePath(newPath)
-//		result=weibu.GetFileReport(hash,agent.GetWeiBuConf(),"")
-//		seg=base.GeneFileSegmentation(100,"-")
-//	    //printer.Info(result+seg)	
-//		flag=flag&&check.CheckHash(hash,agent.GetWeiBuConf(),"",0.5)
-//		if !flag {
-//			printer.Warn(newPath+" 微步结果是false")
-//			return flag 
-//		}
-//	}
-//	return flag
-//end
-//
-//
-//
-//rule "HKLM-winlogon helper 检查" "basic" salience 0
-//begin
-//	flag=true
-//	Path="HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon"
-//	UserinitKey="Userinit"
-//	Notify="Notify"
-//	Shell="Shell"
-//
-//	// Userinit检查
-//	regValue=reg.GetRegPathValue(Path,UserinitKey)
-//	if regValue!=err{
-//		paths=strUtils.SplitStr(regValue,",")
-//		forRange i:=paths{
-//			path=paths[i]
-//			printer.Info(path)
-//			hash=fileSysUtils.GetHashWithFilePath(path)
-//			result=weibu.GetFileReport(hash,agent.GetWeiBuConf(),"")
-//			fileSysUtils.IntoFile(@name+"_"+hash+".txt",result)
-//			checkResult=check.CheckHash(hash,agent.GetWeiBuConf(),"",0.5)
-//			if !checkResult{
-//				flag=false
-//				printer.Info(path+" 可能是恶意文件")
-//			}
-//		}
-//	}
-//
-//	// Notify 检查
-//	regValue=reg.GetRegPathValue(Path,Notify)
-//	if regValue!=err{
-//		printer.Info(regValue)
-//		paths=strUtils.SplitStr(regValue,",")
-//		forRange i:=paths{
-//			path=paths[i]
-//			printer.Info(path)
-//			hash=fileSysUtils.GetHashWithFilePath(path)
-//			result=weibu.GetFileReport(hash,agent.GetWeiBuConf(),"")
-//			fileSysUtils.IntoFile(@name+"_"+hash+".txt",result)
-//			checkResult=check.CheckHash(hash,agent.GetWeiBuConf(),"",0.5)
-//			if !checkResult{
-//				flag=false
-//				printer.Info(path+" 可能是恶意文件")
-//			}
-//		}
-//	}
-//
-//	// shell检查 - 需要人工检查项目
-//	regValue=reg.GetRegPathValue(Path,Shell)
-//	if regValue!=err{
-//		paths=strUtils.SplitStr(regValue,",")
-//		forRange i:=paths{
-//			path=paths[i]
-//			printer.Info(path)
-//			hash=fileSysUtils.GetHashWithFilePath(path)
-//			result=weibu.GetFileReport(hash,agent.GetWeiBuConf(),"")
-//			fileSysUtils.IntoFile(@name+"_"+hash+".txt",result)
-//			checkResult=check.CheckHash(hash,agent.GetWeiBuConf(),"",0.5)
-//			if !checkResult{
-//				flag=false
-//				printer.Info(path+" 可能是恶意文件")
-//			}
-//		}
-//	}
-//
-//	return flag
-//end
-//
-//
-//
-//rule "HKCU-winlogon helper 检查" "basic" salience 0
-//begin
-//	flag=true
-//	Path="HKCU\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon"
-//	UserinitKey="Userinit"
-//	Notify="Notify"
-//	Shell="Shell"
-//
-//	// Userinit检查
-//	regValue=reg.GetRegPathValue(Path,UserinitKey)
-//	if regValue!=err{
-//		paths=strUtils.SplitStr(regValue,",")
-//		forRange i:=paths{
-//			path=paths[i]
-//			printer.Info(path)
-//			hash=fileSysUtils.GetHashWithFilePath(path)
-//			result=weibu.GetFileReport(hash,agent.GetWeiBuConf(),"")
-//			fileSysUtils.IntoFile(@name+"_"+hash+".txt",result)
-//			checkResult=check.CheckHash(hash,agent.GetWeiBuConf(),"",0.5)
-//			if !checkResult{
-//				flag=false
-//				printer.Info(path+" 可能是恶意文件")
-//			}
-//		}
-//	}
-//
-//	// Notify 检查
-//	regValue=reg.GetRegPathValue(Path,Notify)
-//	if regValue!=err{
-//		printer.Info(regValue)
-//		paths=strUtils.SplitStr(regValue,",")
-//		forRange i:=paths{
-//			path=paths[i]
-//			printer.Info(path)
-//			hash=fileSysUtils.GetHashWithFilePath(path)
-//			result=weibu.GetFileReport(hash,agent.GetWeiBuConf(),"")
-//			fileSysUtils.IntoFile(@name+"_"+hash+".txt",result)
-//			checkResult=check.CheckHash(hash,agent.GetWeiBuConf(),"",0.5)
-//			if !checkResult{
-//				flag=false
-//				printer.Info(path+" 可能是恶意文件")
-//			}
-//		}
-//	}
-//
-//	// shell检查 - 需要人工检查项目
-//	regValue=reg.GetRegPathValue(Path,Shell)
-//	if regValue!=err{
-//		paths=strUtils.SplitStr(regValue,",")
-//		forRange i:=paths{
-//			path=paths[i]
-//			printer.Info(path)
-//			hash=fileSysUtils.GetHashWithFilePath(path)
-//			result=weibu.GetFileReport(hash,agent.GetWeiBuConf(),"")
-//			fileSysUtils.IntoFile(@name+"_"+hash+".txt",result)
-//			checkResult=check.CheckHash(hash,agent.GetWeiBuConf(),"",0.5)
-//			if !checkResult{
-//				flag=false
-//				printer.Info(path+" 可能是恶意文件")
-//			}
-//		}
-//	}
-//
-//	return flag
-//end
-//
-//rule "定时任务命令获取" "basic" salience 0
-//begin
-//	cmds=schedule.GetScheduledTaskCommands()
-//	if strUtils.GetStrSpliceLen(cmds)==0{
-//		return  false
-//	}
-//	fileSysUtils.StrSpliceIntoFile(@name+"_ai",cmds)
-//	return true
-//end
-//
-//
-//rule "com 劫持" "basic" salience 0
-//begin
-//	// 通过遍历路径下的文件，检查是.com 结尾的程序，有的话就说明有问题，并且送于微步hash 分析
-//	Path="C:\Windows\System32"
-//	suffix=".com"
-//	files=fileSysUtils.LsFile(Path)
-//	flag=true
-//	forRange i:=files{
-//		fileName=files[i]
-//		isHave=strUtils.IsStrHasSuffix(fileName,suffix)
-//		if isHave{
-//			flag=false
-//			fullPath=Path+strUtils.GeneABackslash()+fileName
-//			hash=fileSysUtils.GetHashWithFilePath(fullPath)
-//			result=weibu.GetFileReport(hash,agent.GetWeiBuConf(),"")
-//			fileSysUtils.IntoFile(@name+"_"+fileName+"_"+hash+".txt",result)
-//			checkResult=check.CheckHash(hash,agent.GetWeiBuConf(),"",0.5)
-//			printer.Warn(fullPath+" 可能是恶意文件")
-//			if !checkResult{
-//				flag=false
-//				printer.Info(fullPath+" 是恶意文件")
-//				
-//			}
-//		}
-//	}
-//	return flag
-//end
-//
-//
-//
-//rule "waitfor 检测" "basic" salience 0
-//begin
-//	pathes=strUtils.CraterStrSlice("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Run",
-//	"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce",
-//	"HKEY_LOCAL_MACHINE\SOFTWAREWOW6432Node\Microsoft Windows\CurrentVersion\Run",
-//	"HKEY_LOCAL_MACHINE\SOFTWAREWOW6432Node\Microsoft\Windows\CurrentVersion\RunOnce",
-//	"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnceEx\0001",
-//	"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnceEx\0001\Depend")
-//	flag=true
-//	forRange i:=pathes{
-//		path=pathes[i]
-//		isHavePath=reg.IsHavePath(path)
-//		if !isHavePath{
-//			printer.Info(@name+" 中不存在"+path+" 路径，所以安全",@name)
-//			continue
-//		}
-//		names=reg.GetRegPathValueNames(path)
-//		flag=true
-//		target="waitfor"
-//		forRange i:=names{
-//			ret=reg.GetRegPathValue(path,names[i])
-//			//printer.Info(ret,@name)
-//			if strUtils.Contains(ret,target){
-//				printer.Warn(@name+" 存在waitfor 命令的启动项目"+ret)
-//				flag=false
-//			}
-//		}
-//	}
-//
-//	cmds=schedule.GetScheduledTaskCommands()
-//	if strUtils.GetStrSpliceLen(cmds)==0{
-//		return  false
-//	}
-//	forRange i:=cmds{
-//		cmd=cmds[i]
-//		if strUtils.Contains(cmd,target){
-//			printer.Warn(@name+" 存在waitfor 命令的定时任务"+ret)
-//			flag=false
-//		}
-//	}
-//
-//	return flag
-//end
-//
-//
-//
-//rule "Netsh helper 获取" "basic"  salience 0
-//begin
-//	path="HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\NetSh"
-//	names=reg.GetRegPathValueNames(path)
-//	flag=false
-//	forRange i:=names{
-//		ret=reg.GetRegPathValue(path,names[i])
-//		printer.Warn(ret,@name)
-//	}
-//	return flag
-//end
-//
-//
-//
-//rule "bits 获取" "basic"  salience 0
-//begin
-//	rets=phs.GetScheduledTaskCommands()
-//	forRange i:=rets{
-//		ret=rets[i]
-//		printer.Warn(ret,@name)
-//	}
-//end
+
+rule "自启动文件夹下检测2" "basic"  salience 0
+begin
+	path="%appdata%\Microsoft\Windows\Start Menu\Programs\Startup"
+	files=fileSysUtils.LsFile(path)
+	printer.Warn(@name+" 当前windows 不支持link 解析，请手动分析，当前路径 "+path+" 路径下有一下的文件：")
+	printer.PrintStrSlice(files,"remind",@name)
+	return false
+end
+
+
+rule "注册表自启动检测1" "basic"  salience 0
+begin
+	path="HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run"
+	names=reg.GetRegPathValueNames(path)
+	size=base.SizeForStr(names)
+	flag=true
+	forRange i:=names{
+		ret=reg.GetRegPathValue(path,names[i])
+		//printer.Info(ret,@name)		
+		r=reg.GetPathFromCmd(ret)
+		hash=fileSysUtils.GetHashWithFilePath(r)
+		result=weibu.GetFileReport(hash,agent.GetWeiBuConf(),"")
+		seg=base.GeneFileSegmentation(100,"-")
+	    //printer.Info(result+seg)	
+		//flag=flag&&check.CheckHash(hash,agent.GetWeiBuConf(),"",0.5)
+		if !check.CheckHash(hash,agent.GetWeiBuConf(),"",0.5){
+			printer.Warn(r+" 微步检测：可能是危险文件",@name)
+			flag=false
+		}
+		fileSysUtils.IntoFile(@name+"_"+hash+".txt",result)
+	}
+	return flag
+end
+
+rule "注册表自启动检测2" "basic"  salience 0
+begin
+	path="HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\RunOnce"
+	names=reg.GetRegPathValueNames(path)
+	size=base.SizeForStr(names)
+	flag=true
+	forRange i:=names{
+		ret=reg.GetRegPathValue(path,names[i])
+		printer.Info(ret,@name)		
+		r=reg.GetPathFromCmd(ret)
+		hash=fileSysUtils.GetHashWithFilePath(r)
+		result=weibu.GetFileReport(hash,agent.GetWeiBuConf(),"")
+		seg=base.GeneFileSegmentation(100,"-")
+	    //printer.Info(result+seg)	
+		flag=flag&&check.CheckHash(hash,agent.GetWeiBuConf(),"",0.5)
+		fileSysUtils.IntoFile(@name+"_"+hash+".txt",result)
+	}
+	return flag
+end
+
+rule "LogonScript（优先于AV）" "basic"  salience 0
+begin
+	path="HKEY_CURRENT_USER\Environment"
+	names=reg.GetRegPathValueNames(path)
+	flag=true
+	flag2=strUtils.StrSliceContains(names,"UserInitMprLogonScript")
+	if flag2{
+		printer.Warn(@name+" 中存在UserInitMprLogonScript 键在HKEY_CURRENT_USER\Environment 下",@name)
+	}else{
+		printer.Info(@name+" 中不存在UserInitMprLogonScript 键在HKEY_CURRENT_USER\Environment 下，所以安全",@name)
+		return flag
+	}
+	value:=reg.GetRegPathValue(path,"UserInitMprLogonScript")
+	hashRet=fileSysUtils.GetHashWithFilePath(value)
+	printer.Info(hashRet,@name)
+	flag=check.CheckHash(hashRet,agent.GetWeiBuConf(),"",0.5)
+	return flag
+end
+
+rule "屏幕保护后门检测" "basic"  salience 0
+begin
+	path="HKEY_CURRENT_USER\Control Panel\Desktop"
+	names=reg.GetRegPathValueNames(path)
+	flag=true
+	flag2=strUtils.StrSliceContains(names,"SCRNSAVE.EXE")
+	if flag2{
+		printer.Warn(@name+" 中存在SCRNSAVE.EXE 键在"+path+" 下",@name)
+	}else{
+		printer.Info(@name+" 中不存在SCRNSAVE.EXE 键在"+path+" 下，所以安全",@name)
+		return flag
+	}
+	value:=reg.GetRegPathValue(path,"SCRNSAVE.EXE")
+	hashRet=fileSysUtils.GetHashWithFilePath(value)
+	printer.Info(hashRet,@name)
+	flag=check.CheckHash(hashRet,agent.GetWeiBuConf(),"",0.5)
+	return flag
+end
+
+
+rule "inf文件后门（先于大部分软件）" "basic"  salience 0
+begin
+	path="HKEY_CURRENT_USER\Software\Microsoft\IEAK\GroupPolicy\PendingGPOs"
+	flag=reg.IsHavePath(path)
+	if flag{
+		printer.Warn(@name+" 中存在HKEY_CURRENT_USER\Software\Microsoft\IEAK\GroupPolicy\PendingGPOs 路径",@name)
+	}else{
+		printer.Info(@name+" 中不存在HKEY_CURRENT_USER\Software\Microsoft\IEAK\GroupPolicy\PendingGPOs 路径，所以安全",@name)
+		return true
+	}
+	exePath=reg.GetRegPathValue(path,"Path1")
+	printer.Info(exePath,@name)
+	hashRet=fileSysUtils.GetHashWithFilePath(exePath)
+	printer.Info(hashRet,@name)
+	flag=check.CheckHash(hashRet,agent.GetWeiBuConf(),"",0.5)
+	return flag
+end
+
+
+rule "系统级自启动-注册表统一检测任务" "basic"  salience 0
+begin
+	pathes=strUtils.CraterStrSlice("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Run",
+"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce",
+"HKEY_LOCAL_MACHINE\SOFTWAREWOW6432Node\Microsoft Windows\CurrentVersion\Run",
+"HKEY_LOCAL_MACHINE\SOFTWAREWOW6432Node\Microsoft\Windows\CurrentVersion\RunOnce",
+"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnceEx\0001",
+"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnceEx\0001\Depend")
+	flag=true
+	forRange i:=pathes{
+		path=pathes[i]
+		isHavePath=reg.IsHavePath(path)
+		if !isHavePath{
+			printer.Info(@name+" 中不存在"+path+" 路径，所以安全",@name)
+			continue
+		}
+		names=reg.GetRegPathValueNames(path)
+		size=base.SizeForStr(names)
+		forRange i:=names{
+			ret=reg.GetRegPathValue(path,names[i])
+			//printer.Info(ret,@name)
+			r=reg.GetPathFromCmd(ret)
+			hash=fileSysUtils.GetHashWithFilePath(r)
+			result=weibu.GetFileReport(hash,agent.GetWeiBuConf(),"")
+			seg=base.GeneFileSegmentation(100,"-")
+			//printer.Info(result+seg)	
+			//flag=flag&&check.CheckHash(hash,agent.GetWeiBuConf(),"",0.5)
+			if !check.CheckHash(hash,agent.GetWeiBuConf(),"",0.5){
+				printer.Warn(r+" 微步检测：可能是危险文件",@name)
+				flag=false
+			}
+		}
+	}
+	return flag
+end
+
+
+rule "镜像劫持" "basic"  salience 0
+begin
+	path="HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options"
+	isHavePath=reg.IsHavePath(path)
+	if !isHavePath{
+		printer.Info(@name+" 中不存在"+path+" 路径，所以安全",@name)
+		return true
+	}
+	subKeys=reg.GetPathSubKeys(path)
+	pathWithSubKey=strUtils.AddPrefixs(subKeys,path+strUtils.GeneABackslash())
+	flag=true
+	forRange i:=pathWithSubKey{
+		newPath=pathWithSubKey[i]
+		//printer.Info(newPath)
+		names=reg.GetRegPathValueNames(newPath)
+		flag2=strUtils.StrSliceContainsIgnoreCase(names,"debugger")
+		if flag2{
+			printer.Warn(@name+" 中存在debugger 键在"+path+" 下",@name)
+			flag=false
+		}else{
+			//printer.Info(@name+" 中不存在debugger 键在"+path+" 下，所以安全",@name)
+			continue
+		}
+		ret=reg.GetRegPathValue(newPath,"debugger")
+		printer.Info(ret,@name)
+		r=reg.GetPathFromCmd(ret)
+		printer.Warn("存在恶意键debugger: "+r,@name)
+		hash=fileSysUtils.GetHashWithFilePath(r)
+		result=check.CheckHash(hash,agent.GetWeiBuConf(),"",0.5)
+		if !result{
+			pinter.Warn(r+" 微步检测可能是恶意文件",@name)
+		}
+	}
+	return flag
+end
+	
+
+rule "隐藏用户" "basic"  salience 0
+begin
+	path="HKEY_LOCAL_MACHINE\SAM\SAM\Domains\Account\Users\Names"
+	subKeys=reg.GetPathSubKeys(path)
+	target=strUtils.GetDollarSign()
+	flag2=strUtils.StrSliceContainsIgnoreCase(subKeys,target)
+	if flag2{
+		printer.Warn(@name+" 中存在$ 键在"+path+" 下，可能存在隐藏用户",@name)
+		return false
+	}
+	pathWithSubKey=strUtils.AddPrefixs(subKeys,path+strUtils.GeneABackslash())
+	flag=0
+	forRange i:=pathWithSubKey{
+		newPath=pathWithSubKey[i]
+		printer.Info(newPath)
+		names=reg.GetRegPathValueNames(newPath)
+		ret=reg.GetDefaultRegPathValue(newPath)
+		if ret=="500"{
+			flag=flag+1
+		}
+	}
+	return flag<2
+end
+
+
+rule "AppCertDlls" "basic" salience 0
+begin
+	path="HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Session Manager\AppCertDlls"
+	isHavePath=reg.IsHavePath(path)
+	if !isHavePath{
+		printer.Info(@name+" 中不存在"+path+" 路径，所以安全",@name)
+		return true
+	}
+	printer.Warn(@name+" 存在"+path+" 路径",@name)
+	ret=reg.GetDefaultRegPathValue(path)
+	if ret ==""{
+	printer.Info(@name+"没有键值",@name)
+		return false
+	}
+end
+
+
+rule "AppInit_DLLs " "basic" salience 0
+begin
+	path="HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Windows\AppInit_DLLs"
+	isHavePath=reg.IsHavePath(path)
+	if !isHavePath{
+		printer.Info(@name+" 中不存在"+path+" 路径，所以安全",@name)
+		return true
+	}
+	printer.Warn(@name+" 存在"+path+" 路径",@name)
+	ret=reg.GetDefaultRegPathValue(path)
+	if ret ==""{
+	printer.Info(@name+"没有键值",@name)
+		return false
+	}
+end
+
+
+rule "service 检查" "basic" salience 0
+begin
+	imgPaths=service.GetServiceImagePath()
+	//printer.Info(ret)
+	flag=true
+	forRange i:=imgPaths{
+		newPath=imgPaths[i]
+		//printer.Info(newPath)
+		hash=fileSysUtils.GetHashWithFilePath(newPath)
+		result=weibu.GetFileReport(hash,agent.GetWeiBuConf(),"")
+		seg=base.GeneFileSegmentation(100,"-")
+	    //printer.Info(result+seg)	
+		flag=flag&&check.CheckHash(hash,agent.GetWeiBuConf(),"",0.5)
+		if !flag {
+			printer.Warn(newPath+" 微步结果是false")
+			return flag 
+		}
+	}
+	return flag
+end
+
+
+
+rule "HKLM-winlogon helper 检查" "basic" salience 0
+begin
+	flag=true
+	Path="HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon"
+	UserinitKey="Userinit"
+	Notify="Notify"
+	Shell="Shell"
+
+	// Userinit检查
+	regValue=reg.GetRegPathValue(Path,UserinitKey)
+	if regValue!=err{
+		paths=strUtils.SplitStr(regValue,",")
+		forRange i:=paths{
+			path=paths[i]
+			printer.Info(path)
+			hash=fileSysUtils.GetHashWithFilePath(path)
+			result=weibu.GetFileReport(hash,agent.GetWeiBuConf(),"")
+			fileSysUtils.IntoFile(@name+"_"+hash+".txt",result)
+			checkResult=check.CheckHash(hash,agent.GetWeiBuConf(),"",0.5)
+			if !checkResult{
+				flag=false
+				printer.Info(path+" 可能是恶意文件")
+			}
+		}
+	}
+
+	// Notify 检查
+	regValue=reg.GetRegPathValue(Path,Notify)
+	if regValue!=err{
+		printer.Info(regValue)
+		paths=strUtils.SplitStr(regValue,",")
+		forRange i:=paths{
+			path=paths[i]
+			printer.Info(path)
+			hash=fileSysUtils.GetHashWithFilePath(path)
+			result=weibu.GetFileReport(hash,agent.GetWeiBuConf(),"")
+			fileSysUtils.IntoFile(@name+"_"+hash+".txt",result)
+			checkResult=check.CheckHash(hash,agent.GetWeiBuConf(),"",0.5)
+			if !checkResult{
+				flag=false
+				printer.Info(path+" 可能是恶意文件")
+			}
+		}
+	}
+
+	// shell检查 - 需要人工检查项目
+	regValue=reg.GetRegPathValue(Path,Shell)
+	if regValue!=err{
+		paths=strUtils.SplitStr(regValue,",")
+		forRange i:=paths{
+			path=paths[i]
+			printer.Info(path)
+			hash=fileSysUtils.GetHashWithFilePath(path)
+			result=weibu.GetFileReport(hash,agent.GetWeiBuConf(),"")
+			fileSysUtils.IntoFile(@name+"_"+hash+".txt",result)
+			checkResult=check.CheckHash(hash,agent.GetWeiBuConf(),"",0.5)
+			if !checkResult{
+				flag=false
+				printer.Warn(path+" 可能是恶意文件")
+			}
+		}
+	}
+
+	return flag
+end
+
+
+
+rule "HKCU-winlogon helper 检查" "basic" salience 0
+begin
+	flag=true
+	Path="HKCU\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon"
+	UserinitKey="Userinit"
+	Notify="Notify"
+	Shell="Shell"
+
+	// Userinit检查
+	regValue=reg.GetRegPathValue(Path,UserinitKey)
+	if regValue!=err{
+		paths=strUtils.SplitStr(regValue,",")
+		forRange i:=paths{
+			path=paths[i]
+			printer.Info(path)
+			hash=fileSysUtils.GetHashWithFilePath(path)
+			result=weibu.GetFileReport(hash,agent.GetWeiBuConf(),"")
+			fileSysUtils.IntoFile(@name+"_"+hash+".txt",result)
+			checkResult=check.CheckHash(hash,agent.GetWeiBuConf(),"",0.5)
+			if !checkResult{
+				flag=false
+				printer.Info(path+" 可能是恶意文件")
+			}
+		}
+	}
+
+	// Notify 检查
+	regValue=reg.GetRegPathValue(Path,Notify)
+	if regValue!=err{
+		printer.Info(regValue)
+		paths=strUtils.SplitStr(regValue,",")
+		forRange i:=paths{
+			path=paths[i]
+			printer.Info(path)
+			hash=fileSysUtils.GetHashWithFilePath(path)
+			result=weibu.GetFileReport(hash,agent.GetWeiBuConf(),"")
+			fileSysUtils.IntoFile(@name+"_"+hash+".txt",result)
+			checkResult=check.CheckHash(hash,agent.GetWeiBuConf(),"",0.5)
+			if !checkResult{
+				flag=false
+				printer.Info(path+" 可能是恶意文件")
+			}
+		}
+	}
+
+	// shell检查 - 需要人工检查项目
+	regValue=reg.GetRegPathValue(Path,Shell)
+	if regValue!=err{
+		paths=strUtils.SplitStr(regValue,",")
+		forRange i:=paths{
+			path=paths[i]
+			printer.Info(path)
+			hash=fileSysUtils.GetHashWithFilePath(path)
+			result=weibu.GetFileReport(hash,agent.GetWeiBuConf(),"")
+			fileSysUtils.IntoFile(@name+"_"+hash+".txt",result)
+			checkResult=check.CheckHash(hash,agent.GetWeiBuConf(),"",0.5)
+			if !checkResult{
+				flag=false
+				printer.Info(path+" 可能是恶意文件")
+			}
+		}
+	}
+
+	return flag
+end
+
+
+
+
+rule "定时任务命令获取" "basic" salience 0
+begin
+	cmds=schedule.GetScheduledTaskCommands()
+	if strUtils.GetStrSpliceLen(cmds)==0{
+		return  false
+	}
+	fileSysUtils.StrSpliceIntoFile(@name+"_ai",cmds)
+	return true
+end
+
+
+rule "com 劫持" "basic" salience 0
+begin
+	// 通过遍历路径下的文件，检查是.com 结尾的程序，有的话就说明有问题，并且送于微步hash 分析
+	Path="C:\Windows\System32"
+	suffix=".com"
+	files=fileSysUtils.LsFile(Path)
+	flag=true
+	forRange i:=files{
+		fileName=files[i]
+		isHave=strUtils.IsStrHasSuffix(fileName,suffix)
+		if isHave{
+			flag=false
+			fullPath=Path+strUtils.GeneABackslash()+fileName
+			hash=fileSysUtils.GetHashWithFilePath(fullPath)
+			result=weibu.GetFileReport(hash,agent.GetWeiBuConf(),"")
+			fileSysUtils.IntoFile(@name+"_"+fileName+"_"+hash+".txt",result)
+			checkResult=check.CheckHash(hash,agent.GetWeiBuConf(),"",0.5)
+			if !checkResult{
+				flag=false
+				printer.Info(fullPath+" 是恶意文件")
+				
+			}
+		}
+	}
+	return flag
+end
+
+
+
+rule "waitfor 检测" "basic" salience 0
+begin
+	pathes=strUtils.CraterStrSlice("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Run",
+	"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce",
+	"HKEY_LOCAL_MACHINE\SOFTWAREWOW6432Node\Microsoft Windows\CurrentVersion\Run",
+	"HKEY_LOCAL_MACHINE\SOFTWAREWOW6432Node\Microsoft\Windows\CurrentVersion\RunOnce",
+	"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnceEx\0001",
+	"HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnceEx\0001\Depend")
+	flag=true
+	forRange i:=pathes{
+		path=pathes[i]
+		isHavePath=reg.IsHavePath(path)
+		if !isHavePath{
+			printer.Info(@name+" 中不存在"+path+" 路径，所以安全",@name)
+			continue
+		}
+		names=reg.GetRegPathValueNames(path)
+		flag=true
+		target="waitfor"
+		forRange i:=names{
+			ret=reg.GetRegPathValue(path,names[i])
+			//printer.Info(ret,@name)
+			if strUtils.Contains(ret,target){
+				printer.Warn(@name+" 存在waitfor 命令的启动项目"+ret)
+				flag=false
+			}
+		}
+	}
+
+	cmds=schedule.GetScheduledTaskCommands()
+	if strUtils.GetStrSpliceLen(cmds)==0{
+		return  false
+	}
+	forRange i:=cmds{
+		cmd=cmds[i]
+		if strUtils.Contains(cmd,target){
+			printer.Warn(@name+" 存在waitfor 命令的定时任务"+ret)
+			flag=false
+		}
+	}
+
+	return flag
+end
+
+
+
+rule "Netsh helper 获取" "basic"  salience 0
+begin
+	path="HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\NetSh"
+	names=reg.GetRegPathValueNames(path)
+	flag=false
+	forRange i:=names{
+		ret=reg.GetRegPathValue(path,names[i])
+		printer.Warn(ret,@name)
+	}
+	return flag
+end
+
+
+
+rule "bits 获取" "basic"  salience 0
+begin
+	rets=phs.GetScheduledTaskCommands()
+	forRange i:=rets{
+		ret=rets[i]
+		printer.Warn(ret,@name)
+	}
+end
 
 `
