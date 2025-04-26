@@ -95,7 +95,8 @@ func (a *Agent) Run() {
 		logger.Infof("remoteApi mode")
 		a.remoteAPiRun()
 	case consts.RemoteModeFile:
-		a.remoteAPiRun()
+		logger.Infof("remoteFile mode")
+		a.remoteFileRun()
 	case consts.LocalMode:
 		logger.Infof("local mode")
 		a.localRun()
@@ -164,6 +165,20 @@ func (a *Agent) remoteAPiRun() {
 		os.Exit(1)
 	}
 	a.SetRule(string(rawRule))
+	err = a.baseRun()
+	if err != nil {
+		logger.Errorf("basic run error: %v", err)
+		os.Exit(1)
+	}
+}
+
+func (a *Agent) remoteFileRun() {
+	rule, err := a.GetRuleFromFile()
+	if err != nil {
+		logger.Errorf("GetRuleFromFile error: %v", err)
+		os.Exit(1)
+	}
+	a.SetRule(rule)
 	err = a.baseRun()
 	if err != nil {
 		logger.Errorf("basic run error: %v", err)

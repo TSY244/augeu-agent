@@ -11,6 +11,8 @@ import (
 	"augeu-agent/pkg/windowsWmi"
 	"encoding/json"
 	"github.com/0xrawsec/golang-evtx/evtx"
+	"io"
+	"net/http"
 )
 
 const (
@@ -137,4 +139,19 @@ func (a *Agent) GetRule() (string, error) {
 		return "", err
 	}
 	return *resp.Data, nil
+}
+
+func (a *Agent) GetRuleFromFile() (string, error) {
+	url := a.Conf.ConfigPath
+	resp, err := http.Get(url)
+	if err != nil {
+		logger.Errorf("GetRuleFromFile http.Get error: %v", err)
+		return "", err
+	}
+	defer resp.Body.Close()
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
+	return string(body), nil
 }
