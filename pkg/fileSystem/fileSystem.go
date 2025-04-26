@@ -5,10 +5,12 @@ import (
 	"encoding/hex"
 	"io"
 	"os"
+	"strings"
 )
 
 // LsFile 获取路径下的文件列表， 不包含文件夹
 func LsFile(path string) ([]string, error) {
+	path = replaceEnvPath(path)
 	files, err := os.ReadDir(path)
 	if err != nil {
 		return nil, err
@@ -25,6 +27,7 @@ func LsFile(path string) ([]string, error) {
 
 // LsDir 获取路径下的文件夹列表， 不包含文件
 func LsDir(path string) ([]string, error) {
+	path = replaceEnvPath(path)
 	files, err := os.ReadDir(path)
 	if err != nil {
 		return nil, err
@@ -40,6 +43,7 @@ func LsDir(path string) ([]string, error) {
 
 // GetHashWithFilePath  不支持文件夹
 func GetHashWithFilePath(filePath string) (string, error) {
+	filePath = replaceEnvPath(filePath)
 	file, err := os.Open(filePath)
 	if err != nil {
 		return "", err
@@ -54,8 +58,10 @@ func GetHashWithFilePath(filePath string) (string, error) {
 }
 
 func GetHashsWithFilePaths(filePaths []string) ([]string, error) {
+
 	var hashs []string
 	for _, filePath := range filePaths {
+		filePath = replaceEnvPath(filePath)
 		file, err := os.Open(filePath)
 		if err != nil {
 			return nil, err
@@ -86,4 +92,18 @@ func FromLinkToPath(linkPath string) (string, error) {
 		return "", err
 	}
 	return fileInfo.Mode().String(), nil
+}
+
+func replaceEnvPath(path string) string {
+	// %appdata%\Microsoft\Windows\Start Menu\Programs\Startup
+	if strings.Contains(path, "%") {
+		splitedPaths := strings.Split(path, "%")
+		if len(splitedPaths) != 3 {
+			return path
+		}
+		env := splitedPaths[1]
+		envPath := os.Getenv(env)
+		return envPath + splitedPaths[2]
+	}
+	return path
 }
