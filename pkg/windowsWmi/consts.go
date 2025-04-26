@@ -8,4 +8,5 @@ const (
 	QueryUsersKey         = "SELECT Name, Description, LocalAccount, SID FROM Win32_UserAccount"
 	QueryServiceKey       = "SELECT Name, DisplayName, State, StartMode, StartName FROM Win32_Service"
 	QueryServiceDetailKey = "SELECT Name, DisplayName, State, StartMode, StartName, PathName FROM Win32_Service"
+	QueryAtTasksKey       = "SELECT * From Win32_ScheduledJob"
 )

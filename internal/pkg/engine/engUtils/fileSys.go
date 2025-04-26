@@ -80,3 +80,20 @@ func (f *FileSysUtils) AddToFile(fileName string, data string) error {
 	}
 	return nil
 }
+
+func (f *FileSysUtils) StrSpliceIntoFile(fileName string, strSlice []string) {
+	// 创建一个文件，然后写入数据
+	file, err := os.OpenFile(fileName, os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		logger.Errorf("create file error: %v", err)
+		return
+	}
+	defer file.Close()
+	for _, str := range strSlice {
+		_, err = file.WriteString(str + "\n")
+		if err != nil {
+			logger.Errorf("write file error: %v", err)
+		}
+	}
+
+}

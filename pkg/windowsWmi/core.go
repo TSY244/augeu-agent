@@ -1,6 +1,7 @@
 package windowsWmi
 
 import (
+	"augeu-agent/pkg/logger"
 	"errors"
 	"fmt"
 	"github.com/StackExchange/wmi"
@@ -74,6 +75,7 @@ func QueryUsers() ([]Win32_UserAccount, error) {
 	return dst, nil
 }
 
+// QueryScheduledTasks 查询所有Windows计划任务
 func QueryScheduledTasks() ([]Win32_ScheduledTask, error) {
 	namespace := "Root\\Microsoft\\Windows\\TaskScheduler"
 
@@ -112,6 +114,7 @@ func QueryScheduledTasks() ([]Win32_ScheduledTask, error) {
 	return result, nil
 }
 
+// QueryServices 查询所有Windows服务
 func QueryServices() ([]Win32_Service, error) {
 	var dst []Win32_Service
 	if err := baseSlice(&dst, QueryServiceKey); err != nil {
@@ -127,4 +130,17 @@ func QueryServicesDetail() ([]Win32_ServiceDetail, error) {
 		return nil, err
 	}
 	return dst, nil
+}
+
+func QueryAtTasks() ([]Win32_ScheduledJob, error) {
+	namespace := "Root\\CIMV2"
+	var jobs []Win32_ScheduledJob
+	if err := wmi.QueryNamespace(QueryAtTasksKey, &jobs, namespace); err != nil {
+		return nil, err
+	}
+	if len(jobs) == 0 {
+		logger.Infof("No scheduled jobs found")
+		return nil, errors.New("no scheduled jobs found")
+	}
+	return jobs, nil
 }

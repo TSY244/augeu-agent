@@ -52,12 +52,33 @@ func TestQuery(t *testing.T) {
 	//	t.Log(task)
 	//}
 
-	ret6, err := QueryServicesDetail()
+	//ret6, err := QueryServicesDetail()
+	//if err != nil {
+	//	t.Error(err)
+	//}
+	//for _, task := range ret6 {
+	//	t.Logf("name: %s, displayName: %s, state: %s, startMode: %s, startName: %s, pathName: %s",
+	//		task.Name, task.DisplayName, task.State, task.StartMode, task.StartName, task.PathName)
+	//}
+
+	ret7, err := QueryScheduledTasks()
 	if err != nil {
 		t.Error(err)
+		return
 	}
-	for _, task := range ret6 {
-		t.Logf("name: %s, displayName: %s, state: %s, startMode: %s, startName: %s, pathName: %s",
-			task.Name, task.DisplayName, task.State, task.StartMode, task.StartName, task.PathName)
+	for _, r := range ret7 {
+		//t.Logf("name: %s, author: %s, state: %s, description: %s, path: %s, uri: %s",
+		//	r.TaskName, r.Author, r.State, r.Description, r.TaskPath, r.URI)
+		t.Logf("path: %s", r.TaskPath)
 	}
 }
+
+//
+//type win32_ScheduledTask struct {
+//	TaskName    string `wmi:"TaskName"`
+//	Author      string `wmi:"Author"`
+//	State       int    `wmi:"State"`
+//	Description string `wmi:"Description"`
+//	TaskPath    string `wmi:"TaskPath"`
+//	URI         string `wmi:"URI"`
+//}

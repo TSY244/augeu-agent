@@ -77,6 +77,9 @@ func NewAgent(c *param.Config) *Agent {
 		"weibu":        engUtils.NewWeiBuUtils(),
 		"check":        engUtils.NewCheck(),
 		"service":      engUtils.NewService(),
+		"err":          consts.ErrKey,
+		"schedule":     engUtils.NewSchedule(),
+		"phs":          engUtils.NewPhs(),
 	}
 	return agent
 }

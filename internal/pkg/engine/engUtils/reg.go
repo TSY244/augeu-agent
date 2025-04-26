@@ -1,6 +1,7 @@
 package engUtils
 
 import (
+	"augeu-agent/internal/utils/consts"
 	"augeu-agent/pkg/logger"
 	"augeu-agent/pkg/registration"
 	"golang.org/x/sys/windows/registry"
@@ -38,7 +39,7 @@ func (r *Reg) GetRegPathValue(path string, name string) string {
 	value, err := registration.GetRegPathStringValue(path, name)
 	if err != nil {
 		logger.Errorf("get reg path value error: %v", err)
-		return ""
+		return consts.ErrKey
 	}
 	return value
 }
@@ -84,7 +85,7 @@ func (r *Reg) GetDefaultRegPathValue(path string) string {
 	ret, err := registration.GetDefaultRegPathValue(path)
 	if err != nil {
 		logger.Errorf("get reg path value error: %v", err)
-		return ""
+		return consts.ErrKey
 	}
 	return ret
 }

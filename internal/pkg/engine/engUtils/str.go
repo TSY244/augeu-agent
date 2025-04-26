@@ -58,7 +58,20 @@ func (s *StrUtils) CraterStrSlice(strSlice ...string) []string {
 
 // SplitStr 切割字符串
 func (s *StrUtils) SplitStr(str string, sep string) []string {
-	return strings.Split(str, sep)
+	// 使用 strings.Split 分割字符串
+	ret := strings.Split(str, sep)
+
+	// 预估容量，减少切片扩容次数
+	newStr := make([]string, 0, len(ret))
+
+	for _, v := range ret {
+		trimmed := strings.TrimSpace(v)
+		if trimmed != "" {
+			newStr = append(newStr, trimmed)
+		}
+	}
+
+	return newStr
 }
 
 // IsStrInstrSplice 判断字符串是否在字符串切片中
@@ -128,4 +141,23 @@ func (s *StrUtils) GetPathFromCmd(cmd string) string {
 		path = matches[2]
 	}
 	return path
+}
+
+// GetStrSpliceLen 获取字符串切片的长度
+func (s *StrUtils) GetStrSpliceLen(strSlice []string) int {
+	return len(strSlice)
+}
+
+// IsStrSpliceHasSuffix 是否含有后缀
+func (s *StrUtils) IsStrSpliceHasSuffix(strSlice []string, suffix string) bool {
+	for _, v := range strSlice {
+		if strings.HasSuffix(v, suffix) {
+			return true
+		}
+	}
+	return false
+}
+
+func (s *StrUtils) IsStrHasSuffix(strSlice string, suffix string) bool {
+	return strings.HasSuffix(strSlice, suffix)
 }

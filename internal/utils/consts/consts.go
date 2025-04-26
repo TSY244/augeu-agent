@@ -18,3 +18,5 @@ const (
 	Mixed        = 3
 	ReverseMixed = 4
 )
+
+const ErrKey = "err"

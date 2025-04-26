@@ -39,6 +39,7 @@ type Win32_UserAccount struct {
 	SID          string `wmi:"SID"`
 }
 
+// win32_ScheduledTask
 type win32_ScheduledTask struct {
 	TaskName    string `wmi:"TaskName"`
 	Author      string `wmi:"Author"`
@@ -48,6 +49,7 @@ type win32_ScheduledTask struct {
 	URI         string `wmi:"URI"`
 }
 
+// Win32_ScheduledTask windowsWmi 定时任务
 type Win32_ScheduledTask struct {
 	TaskName    string
 	Author      string
@@ -72,4 +74,15 @@ type Win32_ServiceDetail struct {
 	StartMode   string `wmi:"StartMode"`   // 启动类型（如 Auto/Manual）
 	StartName   string `wmi:"StartName"`   // 服务运行的用户账户
 	PathName    string `wmi:"PathName"`    // 服务可执行文件路径（可选扩展）
+}
+
+type Win32_ScheduledJob struct {
+	Caption       string `wmi:"Caption"`
+	Command       string `wmi:"Command"`
+	JobID         uint32 `wmi:"JobID"`
+	Owner         string `wmi:"Owner"`
+	Priority      uint32 `wmi:"Priority"`
+	RunRepeatedly bool   `wmi:"RunRepeatedly"`
+	StartTime     string `wmi:"StartTime"`
+	Status        string `wmi:"Status"`
 }
