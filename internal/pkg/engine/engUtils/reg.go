@@ -19,6 +19,25 @@ func NewReg() *Reg {
 	return &Reg{}
 }
 
+// GetPathSubKeys 获取路径下的子项
+//
+// params:
+//   - path 注册表的路径
+//
+// return:
+//   - []string 子项
+//
+// notice:
+//  1. 发生错误时返回nil
+func (r *Reg) GetPathSubKeys(path string) []string {
+	names, err := registration.GetPathSubKeys(path)
+	if err != nil {
+		logger.Errorf("get path sub keys error: %v", err)
+		return nil
+	}
+	return names
+}
+
 // GetRegPathValueNames 获取注册表路径下的所有值名称
 //
 // params:
