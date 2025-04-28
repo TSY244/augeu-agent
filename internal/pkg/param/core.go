@@ -3,9 +3,10 @@ package param
 import "flag"
 
 const (
-	ModeUsage = `加载方式: basic, remote, local
+	ModeUsage = `加载方式: basic, remoteFile, remoteApi, local
 	basic: 从程序内部加载默认规则
-	remote: 加载远端提供的配置文件, -cp 参数需要提供一个远程url
+	remoteFile: 加载远端提供的配置文件, -cp 参数需要提供一个远程url
+	remoteApi: 加载远端api 的配置文件
 	local: 从本地加载一个配置文件, -cp 需要提供一个本地文件路径
 	`
 	ConfigPathUsage = `配置文件路径`

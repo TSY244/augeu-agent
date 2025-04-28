@@ -30,36 +30,6 @@ func NewAgent(c *param.Config) *Agent {
 	checkConf(c)
 	rootCtx, cancel := context.WithCancel(context.Background())
 
-	//// websocket
-	//ws, resp, err := websocket.DefaultDialer.Dial(c.WebsocketAddr, nil)
-	//if err != nil {
-	//	logger.Errorf("Failed to dial websocket: %v", err)
-	//	cancel()
-	//	return nil
-	//}
-	//if resp.StatusCode != 101 {
-	//	logger.Errorf("Failed to dial websocket: %v", resp.Status)
-	//	cancel()
-	//	return nil
-	//}
-	//go func() {
-	//	for {
-	//		select {
-	//		case <-rootCtx.Done():
-	//			logger.Infof("websocket connection closed")
-	//			return
-	//		default:
-	//		}
-	//
-	//		_, _, err := ws.ReadMessage()
-	//		if err != nil {
-	//			logger.Errorf("Lost Connection to server: %v", err)
-	//			cancel()
-	//			return
-	//		}
-	//
-	//	}
-	//}()
 	agent := &Agent{
 		Conf:    c,
 		RootCtx: rootCtx,
