@@ -37,7 +37,7 @@ Usage of AugetAgent.exe:
 
 或者是使用`-mode basic` 参数进行指定
 
-![image-20250428221210288](img\image-20250428221059918.png)
+![image-20250428221210288](https://github.com/TSY244/augeu-agent/blob/master/img/image-20250428221059918.png)
 
 
 
@@ -55,7 +55,7 @@ Usage of AugetAgent.exe:
 
 先启动backend
 
-![image-20250428223854304](img\image-20250428223854304.png)
+![image-20250428223854304](https://github.com/TSY244/augeu-agent/blob/master/img/image-20250428223854304.png)
 
 这个token 就是secrete
 
@@ -77,7 +77,7 @@ Usage of AugetAgent.exe:
 
 带有前缀 `[task log] `
 
-![image-20250428224944255](img\image-20250428224944255.png)
+![image-20250428224944255](https://github.com/TSY244/augeu-agent/blob/master/img/image-20250428224944255.png)
 
 ## 程序日志
 
@@ -90,7 +90,7 @@ Usage of AugetAgent.exe:
 2025-04-28T22:47:48+08:00 ERR get hash error: open explorer.exe: The system cannot find the file specified.
 ```
 
-![image-20250428224909131](img\image-20250428224909131.png)
+![image-20250428224909131](https://github.com/TSY244/augeu-agent/blob/master/img/image-20250428224909131.png)
 
 ### 常见日志解析
 
