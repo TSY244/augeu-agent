@@ -50,6 +50,7 @@ func NewAgent(c *param.Config) *Agent {
 		"err":          consts.ErrKey,
 		"schedule":     engUtils.NewSchedule(),
 		"phs":          engUtils.NewPhs(),
+		"process":      engUtils.NewProcessUtils(),
 	}
 	return agent
 }
