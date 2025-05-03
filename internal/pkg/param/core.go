@@ -24,6 +24,7 @@ func Init() {
 	flag.StringVar(&BaseConfig.RemoteAddr, "r", "", "server api 地址，请注意加上/api/v1，举个栗子：http://127.0.0.1/api/v1")
 	flag.StringVar(&BaseConfig.WebsocketAddr, "ws", "", "server 提供的websocket 地址，注意使用ws://开头")
 	flag.StringVar(&BaseConfig.WeiBuApiKey, "wbapi", "", "微步api密钥")
+	flag.StringVar(&BaseConfig.Target, "target", "", "监听的ip或者是域名")
 	flag.Var(&BaseConfig.Env, "env", EnvUsage)
 	flag.Parse()
 }

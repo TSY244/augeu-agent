@@ -9,6 +9,8 @@ const (
 	procGetModuleFileNameExKey      = "GetModuleFileNameExW"
 	procVirtualQueryExKey           = "VirtualQueryEx"
 	procReadProcessMemoryKey        = "ReadProcessMemory"
+	procGetExtendedTcpTableKey      = "GetExtendedTcpTable"
+	procGetExtendedUdpTableKey      = "GetExtendedUdpTable"
 )
 
 const (
@@ -18,4 +20,9 @@ const (
 // errors
 const (
 	INVALID_HANDLE_VALUE = 0
+)
+
+const (
+	TCP_TABLE_OWNER_PID_ALL = 5
+	UDP_TABLE_OWNER_PID     = 1
 )

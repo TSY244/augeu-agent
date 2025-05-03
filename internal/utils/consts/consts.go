@@ -6,6 +6,7 @@ const (
 	RemoteModeApi  = "remoteApi"
 	RemoteModeFile = "remoteFile"
 	LocalMode      = "local"
+	MonitorMode    = "monitor"
 )
 
 // pool param

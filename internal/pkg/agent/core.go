@@ -2,6 +2,7 @@ package agent
 
 import (
 	"augeu-agent/internal/pkg/engine/engUtils"
+	"augeu-agent/internal/pkg/netstat"
 	"augeu-agent/internal/pkg/param"
 	"augeu-agent/internal/utils/consts"
 	"augeu-agent/pkg/color"
@@ -72,6 +73,13 @@ func (a *Agent) Run() {
 	case consts.LocalMode:
 		logger.Infof("local mode")
 		a.localRun()
+	case consts.MonitorMode:
+		logger.Infof("monitor mode")
+		err := netstat.Monitor(a.Conf.Target)
+		if err != nil {
+			logger.Errorf("monitor error: %v", err)
+			os.Exit(1)
+		}
 	default:
 		logger.Errorf("unknown mode")
 		param.Help()
@@ -193,6 +201,11 @@ func checkConf(c *param.Config) {
 	}
 	if c.Mode == consts.LocalMode && c.ConfigPath == "" {
 		logger.Errorf("local config path is empty")
+		param.Help()
+		os.Exit(1)
+	}
+	if c.Mode == consts.MonitorMode && c.Target == "" {
+		logger.Errorf("monitor target is empty")
 		param.Help()
 		os.Exit(1)
 	}

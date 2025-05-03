@@ -21,6 +21,12 @@ var (
 	procGetModuleInformation = GetFunction(psapi, procGetModuleFileNameExKey)
 )
 
+var (
+	iphlpapi                = InitDll("iphlpapi.dll")
+	procGetExtendedTcpTable = GetFunction(iphlpapi, procGetExtendedTcpTableKey)
+	procGetExtendedUdpTable = GetFunction(iphlpapi, procGetExtendedUdpTableKey)
+)
+
 func InitDll(dllName string) *syscall.LazyDLL {
 	return syscall.NewLazyDLL(dllName)
 }
