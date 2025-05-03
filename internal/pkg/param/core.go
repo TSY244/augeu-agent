@@ -10,6 +10,11 @@ const (
 	local: 从本地加载一个配置文件, -cp 需要提供一个本地文件路径
 	`
 	ConfigPathUsage = `配置文件路径`
+
+	EnvUsage = `环境变量，格式为：key:value
+				用法通过-env 多次添加
+				-env key1:value1 -env key2:value2
+`
 )
 
 func Init() {
@@ -19,6 +24,7 @@ func Init() {
 	flag.StringVar(&BaseConfig.RemoteAddr, "r", "", "server api 地址，请注意加上/api/v1，举个栗子：http://127.0.0.1/api/v1")
 	flag.StringVar(&BaseConfig.WebsocketAddr, "ws", "", "server 提供的websocket 地址，注意使用ws://开头")
 	flag.StringVar(&BaseConfig.WeiBuApiKey, "wbapi", "", "微步api密钥")
+	flag.Var(&BaseConfig.Env, "env", EnvUsage)
 	flag.Parse()
 }
 

@@ -1,5 +1,18 @@
 package agent
 
+//const (
+//	BasicRule = `
+//rule "自启动文件夹下检测1" "basic"  salience 0
+//begin
+//	path=env.GetEnv("path")
+//	printer.Info(path)
+//	test=env.GetEnv("test")
+//	printer.Info(test)
+//end
+//
+//`
+//)
+
 const BasicRule = `
 rule "自启动文件夹下检测1" "basic"  salience 0
 begin
@@ -29,12 +42,12 @@ begin
 	flag=true
 	forRange i:=names{
 		ret=reg.GetRegPathValue(path,names[i])
-		//printer.Info(ret,@name)		
+		//printer.Info(ret,@name)
 		r=reg.GetPathFromCmd(ret)
 		hash=fileSysUtils.GetHashWithFilePath(r)
 		result=weibu.GetFileReport(hash,agent.GetWeiBuConf(),"")
 		seg=base.GeneFileSegmentation(100,"-")
-	    //printer.Info(result+seg)	
+	    //printer.Info(result+seg)
 		//flag=flag&&check.CheckHash(hash,agent.GetWeiBuConf(),"",0.5)
 		if !check.CheckHash(hash,agent.GetWeiBuConf(),"",0.5){
 			printer.Warn(r+" 微步检测：可能是危险文件",@name)
@@ -53,12 +66,12 @@ begin
 	flag=true
 	forRange i:=names{
 		ret=reg.GetRegPathValue(path,names[i])
-		printer.Info(ret,@name)		
+		printer.Info(ret,@name)
 		r=reg.GetPathFromCmd(ret)
 		hash=fileSysUtils.GetHashWithFilePath(r)
 		result=weibu.GetFileReport(hash,agent.GetWeiBuConf(),"")
 		seg=base.GeneFileSegmentation(100,"-")
-	    //printer.Info(result+seg)	
+	    //printer.Info(result+seg)
 		flag=flag&&check.CheckHash(hash,agent.GetWeiBuConf(),"",0.5)
 		fileSysUtils.IntoFile(@name+"_"+hash+".txt",result)
 	}
@@ -148,7 +161,7 @@ begin
 			hash=fileSysUtils.GetHashWithFilePath(r)
 			result=weibu.GetFileReport(hash,agent.GetWeiBuConf(),"")
 			seg=base.GeneFileSegmentation(100,"-")
-			//printer.Info(result+seg)	
+			//printer.Info(result+seg)
 			//flag=flag&&check.CheckHash(hash,agent.GetWeiBuConf(),"",0.5)
 			if !check.CheckHash(hash,agent.GetWeiBuConf(),"",0.5){
 				printer.Warn(r+" 微步检测：可能是危险文件",@name)
@@ -195,7 +208,7 @@ begin
 	}
 	return flag
 end
-	
+
 
 rule "隐藏用户" "basic"  salience 0
 begin
@@ -267,11 +280,11 @@ begin
 		hash=fileSysUtils.GetHashWithFilePath(newPath)
 		result=weibu.GetFileReport(hash,agent.GetWeiBuConf(),"")
 		seg=base.GeneFileSegmentation(100,"-")
-	    //printer.Info(result+seg)	
+	    //printer.Info(result+seg)
 		flag=flag&&check.CheckHash(hash,agent.GetWeiBuConf(),"",0.5)
 		if !flag {
 			printer.Warn(newPath+" 微步结果是false")
-			return flag 
+			return flag
 		}
 	}
 	return flag
@@ -447,7 +460,7 @@ begin
 			if !checkResult{
 				flag=false
 				printer.Info(fullPath+" 是恶意文件")
-				
+
 			}
 		}
 	}

@@ -7,8 +7,11 @@ type Config struct {
 	RemoteAddr    string // 远程地址
 	WebsocketAddr string // websocket地址
 	WeiBuApiKey   string // 微步api密钥
+	Env           StrSplice
 }
 
 var (
-	BaseConfig = Config{}
+	BaseConfig = Config{
+		Env: NewStrSplice(),
+	}
 )

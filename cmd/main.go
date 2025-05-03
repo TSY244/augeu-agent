@@ -8,5 +8,6 @@ import (
 func main() {
 	param.Init()
 	augeu := agent.NewAgent(&param.BaseConfig)
+	augeu.SetEnv()
 	augeu.Run()
 }
