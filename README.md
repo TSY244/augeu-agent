@@ -67,7 +67,15 @@ Usage of AugetAgent.exe:
 .\AugetAgent.exe -mode remoteApi -r http://127.0.0.1:8080/api/v1 -s R1gmbk9yPiNEY3RYNVdSd -wbapi  XXXXXXXXXXXXXX
 ```
 
+## 监听模式
 
+``` 
+.\AugeuAgent.exe -mode monitor -target ip/domain
+```
+
+
+
+![image-20250504105442370](https://raw.githubusercontent.com/TSY244/augeu-agent/refs/heads/master/img/image-20250504105442370.png)
 
 # 日志输出分析
 

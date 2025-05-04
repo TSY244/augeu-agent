@@ -75,7 +75,7 @@ func (a *Agent) Run() {
 		a.localRun()
 	case consts.MonitorMode:
 		logger.Infof("monitor mode")
-		err := netstat.Monitor(a.Conf.Target)
+		err := netstat.MonitorTcpAndUdp(a.Conf.Target, a.Conf.IsStrong)
 		if err != nil {
 			logger.Errorf("monitor error: %v", err)
 			os.Exit(1)

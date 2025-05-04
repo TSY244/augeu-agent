@@ -9,6 +9,7 @@ type Config struct {
 	WeiBuApiKey   string    // 微步api密钥
 	Env           StrSplice // 传给rule 的环境变量
 	Target        string    // ip或domain，监控网络信息
+	IsStrong      bool      // 是否开启强监听模式
 }
 
 var (
