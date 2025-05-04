@@ -8,4 +8,5 @@ func TestMonitor(t *testing.T) {
 
 func TestMonitorDns(t *testing.T) {
 	MonitorDns("win.au9u5t.fun", false)
+
 }
