@@ -1,0 +1,67 @@
+name: Auto Release Windows Binaries
+
+on:
+  push:
+    branches:
+      - master
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  check-commit:
+    runs-on: ubuntu-latest
+    outputs:
+      should-release: ${{ steps.check.outputs.should-release }}
+      release-tag: ${{ steps.check.outputs.release-tag }}
+    steps:
+      - name: Check commit message
+        id: check
+        run: |
+          COMMIT_MSG="${{ github.event.head_commit.message }}"
+          
+          # 使用正则表达式匹配 release: vX.X.X 格式
+          if [[ "$COMMIT_MSG" =~ release:\ (v[0-9]+\.[0-9]+\.[0-9]+) ]]; then
+            echo "should-release=true" >> $GITHUB_OUTPUT
+            echo "release-tag=${BASH_REMATCH[1]}" >> $GITHUB_OUTPUT
+          else
+            echo "should-release=false" >> $GITHUB_OUTPUT
+            echo "release-tag=none" >> $GITHUB_OUTPUT
+          fi
+
+  build-release:
+    needs: check-commit
+    if: needs.check-commit.outputs.should-release == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        goarch: ["386", "amd64", "arm64"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.23.8'
+
+      - name: Build Windows binary
+        env:
+          GOOS: windows
+          GOARCH: ${{ matrix.goarch }}
+        run: |
+          go build -o ./AugeuAgent-${{ env.GOARCH }}.exe ./cmd/main.go
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ needs.check-commit.outputs.release-tag }}
+          name: "Release ${{ needs.check-commit.outputs.release-tag }}"
+          body: "Automated Windows build for ${{ needs.check-commit.outputs.release-tag }}"
+          draft: false
+          prerelease: false
+          files: |
+            AugeuAgent-${{ matrix.goarch }}.exe
+            LICENSE
+            README.md
